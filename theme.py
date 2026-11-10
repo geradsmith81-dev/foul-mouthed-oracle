@@ -86,6 +86,64 @@ PHONE_TEXT_CSS = (
     '    .lilly-table a { color: #000000 !important; text-decoration: underline; }\n')
 
 
+# Light-mode proof (user report: in Light mode the text was hard to read). Streamlit draws its own light theme when a
+# visitor picks Light in the app menu, or when the phone is in light mode and .streamlit/config.toml is missing (GitHub
+# drag-and-drop drops dot-folders). The app paints its panels dark itself, so its text and buttons must be painted light
+# itself too. In dark mode these are the colours Streamlit already uses, so nothing changes there.
+# Each selector is one unbroken string: a space between ':is(...)' and ':not(...)' would mean "an element inside".
+_LP_SCOPE = ('[data-testid="stMain"], [data-testid="stSidebar"], [data-testid="stDialog"], '
+             '[data-testid="stPopoverBody"], [data-testid="stBottomBlockContainer"]')
+_LP_TEXT = ', '.join(['p', 'li', 'span', 'label', 'small', 'summary', 'b', 'strong', 'em', 'i', 'td', 'th', 'dt', 'dd',
+                      '[data-testid="stMarkdownContainer"]', '[data-testid="stWidgetLabel"]',
+                      '[data-testid="stMetricLabel"]', '[data-testid="stMetricLabel"] *'])
+_LP_NOT = (':not(:is(h1, h2, h3, h4, h5, h6))'
+           ':not(:is(h1, h2, h3, h4, h5, h6) *)'
+           ':not([data-testid="stBaseButton-primary"] *)'       # the filled button keeps its own (white) text
+           ':not(.lilly-badge):not(.lilly-badge *)'               # grade labels keep their own colours
+           ':not(.lilly-table *)'                                 # phone tables: black on parchment
+           ':not([data-testid="stMarkdownContainer"] [style*="color"])'     # text the app colours itself
+           ':not([data-testid="stMarkdownContainer"] [style*="color"] *)'
+           ':not(a):not(a *)'                                     # links keep their colour
+           ':not(code):not(code *)'
+           ':not([data-testid="stMetricValue"] *)'
+           ':not([data-testid="stCaptionContainer"]):not([data-testid="stCaptionContainer"] *)')
+LIGHT_PROOF_TEXT_SELECTOR = f'body :is({_LP_SCOPE}) :is({_LP_TEXT}){_LP_NOT}'
+_LP_BUTTONS = ', '.join(f'button[data-testid="{t}"]' for t in (
+    'stBaseButton-secondary', 'stBaseButton-secondaryFormSubmit', 'stBaseButton-segmented_control',
+    'stBaseButton-pills', 'stPopoverButton'))
+_LP_ACTIVE = ', '.join(f'button[data-testid="{t}"]' for t in ('stBaseButton-segmented_controlActive',
+                                                              'stBaseButton-pillsActive'))
+
+
+def light_proof_css(p, phone=False):
+    txt = '#ffffff' if phone else p['starlight']
+    caption = (f'    body :is({_LP_SCOPE}) [data-testid="stCaptionContainer"] :is(p, span, li, b, strong, em, small)'
+               f':not([style*="color"]):not([data-testid="stCaptionContainer"] [style*="color"] *):not(a):not(.lilly-badge) {{ color: {p["dust"]} !important; }}\n'
+               if not phone else '')
+    return (
+        '/* light-mode proof: light text and dark buttons whatever theme Streamlit is drawing */\n'
+        f'    {LIGHT_PROOF_TEXT_SELECTOR} {{ color: {txt} !important; }}\n'
+        + caption +
+        f'    :is({_LP_BUTTONS}) {{ background-color: {p["void"]} !important; color: {txt} !important;\n'
+        f'        border: 1px solid {p["orbit"]} !important; }}\n'
+        f'    :is({_LP_BUTTONS}) :is(p, span, div) {{ color: {txt} !important; }}\n'
+        f'    :is({_LP_BUTTONS}):hover {{ border-color: {p["brass"]} !important; }}\n'
+        f'    :is({_LP_ACTIVE}) {{ background-color: {rgba(p["primary"], 0.35)} !important; color: #ffffff !important;\n'
+        f'        border: 1px solid {p["primary"]} !important; }}\n'
+        f'    :is({_LP_ACTIVE}) :is(p, span, div) {{ color: #ffffff !important; }}\n'
+        f'    [data-testid="stSidebar"] {{ background-color: {p["panel"]} !important; }}\n'
+        f'    [data-testid="stSidebarNav"] a:is(:hover, [aria-current="page"]) {{ background-color: {rgba(p["orbit"], 0.45)} !important; }}\n'
+        f'    [data-testid="stSidebarNav"] a :is(span, p) {{ color: {txt} !important; }}\n'
+        f'    [data-testid="stDialog"] [role="dialog"], [data-testid="stPopoverBody"] {{\n'
+        f'        background-color: {p["panel"]} !important; color: {txt} !important; border: 1px solid {p["orbit"]}; }}\n'
+        f'    [data-testid="stDialog"] [role="dialog"] button[aria-label="Close"] {{ color: {txt} !important; }}\n'
+        f'    [data-testid="stExpander"] details, [data-testid="stExpander"] summary {{ border-color: {p["orbit"]} !important; }}\n'
+        f'    [data-testid="stHeader"] :is(button, a, span, svg) {{ color: {txt} !important; }}\n'
+        f'    [data-testid="stTooltipIcon"] svg, [data-testid="stWidgetLabel"] svg {{ color: {p["dust"]} !important; }}\n'
+        f'    [data-testid="stCheckbox"] [role="checkbox"], [data-testid="stCheckbox"] span:has(> input) {{\n'
+        f'        border-color: {p["dust"]} !important; }}\n')
+
+
 def css(bg_path='assets/background.jpg', phone=False):
     """phone=True: use the smaller portrait copy of the background (assets/background_phone.jpg) if present,
     and make all text except headings white."""
@@ -180,6 +238,7 @@ def css(bg_path='assets/background.jpg', phone=False):
     }}
     .lilly-day {{ padding: 0.32rem 0; border-bottom: 1px solid {p['orbit']}44; line-height: 1.9; }}
     .lilly-day b {{ color: #ffffff; margin-right: 0.4rem; }}
+    {light_proof_css(p, phone)}
     {phone_css}
     .lilly-badge {{ padding: 0.08rem 0.5rem; border-radius: 0.6rem; font-weight: 600; white-space: nowrap;
         border: 1px solid {p['orbit']}; margin-right: 0.25rem; }}
