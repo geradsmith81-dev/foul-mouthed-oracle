@@ -1,0 +1,167 @@
+THE FOUL-MOUTHED ORACLE ON YOUR iPHONE, iPAD OR ANDROID TABLET
+================================================================
+
+A phone or tablet cannot run the app's Python itself, so the app runs on a free
+web server (Streamlit Community Cloud) and the phone opens it like a website.
+A small home-screen launcher then gives it its own crimson icon, like an app.
+The app already switches to its phone layout by itself on phones and tablets.
+
+You need: your GitHub account (geradsmith81-dev) and about 20 minutes.
+Do everything below on your Windows PC, then finish on the phone (PART C).
+
+IMPORTANT: this is a NEW app with NEW repositories. Do not upload these files
+into sidereal-lilly-chart or sidereal-oracle (those are The Sidereal Oracle).
+
+
+PART A - PUT THE APP ONLINE  (once)
+-----------------------------------
+
+A1. Unzip "FoulMouthedOracle_github.zip" (right-click > Extract All >
+    Extract). Windows makes a folder inside a folder; open them until you see
+    the folder "foul-mouthed-oracle" with app.py inside it.
+
+A2. Make the repository on GitHub.
+    - Go to https://github.com and sign in.
+    - Click the "+" at the top right > "New repository".
+    - Repository name:  foul-mouthed-oracle
+    - Choose "Public" (Streamlit's free plan needs a public repository).
+    - Do not tick "Add a README file". Click "Create repository".
+
+A3. Upload the files.
+    - On the new repository's page, click the link "uploading an existing
+      file".
+    - Open the folder "foul-mouthed-oracle" in File Explorer, press Ctrl+A to
+      select everything INSIDE it (29 items: the .py files and the folders
+      assets, data, ephem and .streamlit), and drag them into the browser.
+    - Wait until every file is listed, then click "Commit changes".
+    - Check: the repository shows app.py, voice.py, the folders assets and
+      data, and README.md at the top level (not inside another folder).
+
+A4. Add the colour settings by hand (GitHub drops folders whose names start
+    with a dot, such as .streamlit, when you drag them in).
+    - On the repository page click "Add file" > "Create new file".
+    - In the name box type exactly:   .streamlit/config.toml
+      (typing the "/" makes the folder).
+    - Open "config.toml for GitHub (paste).txt" (it came in the zip, next to
+      the foul-mouthed-oracle folder), press Ctrl+A, Ctrl+C, and paste it
+      into the big box on GitHub.
+    - Click "Commit changes..." and then "Commit changes".
+    Without this file the app still works, but on a phone that is set to
+    light mode some boxes may turn white.
+
+A5. Start the app on Streamlit Community Cloud.
+    - Go to https://share.streamlit.io and click "Continue with GitHub"
+      (the same account). Allow access if asked.
+    - Click "Create app" (top right) > "Deploy a public app from GitHub".
+    - Repository:  geradsmith81-dev/foul-mouthed-oracle
+      Branch:      main
+      Main file:   app.py
+    - App URL: type   foul-mouthed-oracle   so the address becomes
+          https://foul-mouthed-oracle.streamlit.app
+      The app's friend-card QR codes and the home-screen launcher already
+      point at this address. If Streamlit says the name is taken, pick
+      another one and see "IF THE ADDRESS IS DIFFERENT" below.
+    - Click "Advanced settings" and choose Python version 3.12. Save.
+      (Python cannot be changed later without deleting the app.)
+    - Click "Deploy". The first start takes a few minutes: the server
+      installs the components and downloads NASA's 32 MB planet file.
+
+A6. Test it on the PC: open https://foul-mouthed-oracle.streamlit.app
+
+
+PART B - THE HOME-SCREEN LAUNCHER  (once)
+-----------------------------------------
+This gives the app its own crimson icon and the name "Foul Oracle" on the
+phone's home screen. It is a tiny web page that opens the app.
+
+B1. Unzip "FoulMouthedOracle_launcher.zip". Inside is a folder
+    "foul-mouthed-oracle-launcher".
+
+B2. On GitHub: "+" > "New repository", name  foul-mouthed-oracle-launcher,
+    Public, "Create repository".
+
+B3. Click "uploading an existing file", select everything INSIDE the folder
+    foul-mouthed-oracle-launcher (index.html, manifest.webmanifest, sw.js,
+    README.md and the folder icons) and drag it in. "Commit changes".
+
+B4. Publish it: in the repository click "Settings" > "Pages" (left side).
+    Under "Build and deployment", Source: "Deploy from a branch",
+    Branch: "main" and "/ (root)", then "Save".
+    After a minute or two the page is at
+        https://geradsmith81-dev.github.io/foul-mouthed-oracle-launcher/
+    (refresh the Pages settings to see the link).
+
+
+PART C - ON THE iPHONE, iPAD OR ANDROID TABLET
+----------------------------------------------
+
+iPhone or iPad
+  1. Open Safari and go to
+     https://geradsmith81-dev.github.io/foul-mouthed-oracle-launcher/
+  2. Tap the Share button (square with an arrow), then "Add to Home Screen"
+     (scroll down if needed), then "Add".
+  3. The crimson astrolabe "Foul Oracle" is now on the home screen. Tap it:
+     it opens the app.
+
+Android phone or tablet (Chrome, Samsung Internet or Edge)
+  1. Open the same address in Chrome.
+  2. Tap the three dots (top right) > "Add to home screen" or "Install app",
+     then "Install" / "Add".
+  3. The icon appears on the home screen and in the app drawer.
+
+Using it on a phone or tablet
+  - The app switches to its phone layout by itself: the date, time and place
+    are in a panel at the top of the page. The sidebar (with "How rude?",
+    your profile and "Phone layout") opens with the small arrow at the top
+    left.
+  - "How rude?" works exactly as on the PC: Full, Some, Clean or Polite.
+  - "Say it out loud" reads the punchline in the device's own voice. On an
+    iPhone, switch off silent mode (the side switch) or turn the volume up
+    if nothing is heard.
+  - On a big tablet held sideways you may prefer the computer layout:
+    switch off "Phone layout" in the sidebar.
+  - If the app has been unused for a few days, Streamlit puts it to sleep.
+    The first visit then shows "This app has gone to sleep..." with a
+    button: tap it and wait about a minute.
+  - Profiles: online, your name, picture and birth details are kept only
+    while the app is open, unless you tick "Remember me on this device" in
+    the profile window. Then they are kept in that browser only, never on
+    the server. Friend cards (.lillycard) work in both apps.
+
+
+LATER CHANGES
+-------------
+1. Get the new files (a new FoulMouthedOracle_github.zip).
+2. In the repository foul-mouthed-oracle on GitHub: "Add file" > "Upload
+   files", drag in the changed files (or all of them), "Commit changes".
+3. If config.toml changed, edit .streamlit/config.toml on GitHub by hand.
+4. Check you uploaded to foul-mouthed-oracle, not to another repository.
+5. Restart the app: open the app's address while signed in to Streamlit,
+   click "Manage app" (bottom right; on a phone the small red button with a
+   white crown), then the three dots > "Reboot app".
+
+
+IF THE ADDRESS IS DIFFERENT
+---------------------------
+If Streamlit gave the app another address, change it in two places:
+  - in the repository foul-mouthed-oracle, open user_profile.py, click the
+    pencil, find the line  APP_URL = 'https://foul-mouthed-oracle.streamlit.app/'
+    and put the real address between the quotes; commit, then Reboot app;
+  - in the repository foul-mouthed-oracle-launcher, open index.html, click
+    the pencil, find the line  var APP_URL = "https://foul-mouthed-oracle.streamlit.app/";
+    and put the real address between the quotes; commit.
+
+
+TROUBLESHOOTING
+---------------
+- "ModuleNotFoundError" or "A file of the app is missing": a file was not
+  uploaded. Upload all the files again, then Reboot app.
+- "The app's files are out of step": upload all the files again, then
+  Reboot app.
+- "The NASA JPL planetary data file could not be loaded": the server could
+  not download it the first time. Reboot app.
+- The home-screen icon opens a blank page: open the launcher address in
+  Safari or Chrome once more, or open https://foul-mouthed-oracle.streamlit.app
+  directly and add that to the home screen instead (it gets a plain icon).
+- App stores: the app is not offered in the Apple App Store or Google Play.
+  Its swearing would also need a 17+ / Mature rating there.
