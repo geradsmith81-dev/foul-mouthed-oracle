@@ -665,7 +665,7 @@ def speak_button(line):
     """A 'Say it out loud' button using the browser's own speech (no sound files, nothing sent anywhere).
     At 'Some' the clean wording is spoken, so the voice does not read out asterisks."""
     spoken = line if level() == 'Full' else filter_text(line, 'Clean')
-    label = filter_text('Say it out loud, damn it') if level() != 'Polite' else 'Say it out loud'
+    label = 'Say it out loud!'                     # the user's wording
     html = f"""<!doctype html><html><body style="margin:0;background:transparent">
 <button id="b" style="width:100%;height:40px;border-radius:0.5rem;border:1px solid #4f6789;background:#111927;
  color:#f7f1ea;font:600 15px 'Source Sans Pro','Segoe UI',sans-serif;cursor:pointer">&#128266; {label}</button>

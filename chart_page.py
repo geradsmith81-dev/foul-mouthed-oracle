@@ -43,7 +43,7 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
 user_profile.title('The Foul-Mouthed Oracle', 'The Foul-Mouthed Oracle')      # home page title (not personalised)
 # subtitle under the title: The Sidereal Oracle's wording, plus the attitude
 SUBTITLE = ('Horoscope readings of the real sky for any moment and place. Powerfully calculated using NASA JPL '
-            'planet movements and the actual constellation positions.')         # the user's wording
+            "planet movements, the actual constellation positions, and William Lilly's original 1647 work.")  # user's wording
 st.markdown('<p class="lilly-subtitle" style="font-size:1.12rem; line-height:1.45; margin:-0.4rem 0 0.9rem 0; '
             'color:#f7f1ea;">' + voice.say(SUBTITLE + " No sugar-coating, no bullshit, and it doesn't give a damn "
                                            'about your feelings.', SUBTITLE) + '</p>', unsafe_allow_html=True)
