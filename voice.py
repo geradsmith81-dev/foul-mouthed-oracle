@@ -91,6 +91,78 @@ def filter_text(text, lvl=None):
     return _sub_all(_sub_all(text, _IDIOMS_CLEAN, is_regex=True), _WORDS_CLEAN)
 
 
+# ------------------------------------------------------------------ variety: no swear expression twice on a page
+# (user request: reduce repeated foul language). The first use of an expression on a page stays as written; each
+# later use is swapped for a colourful idiom, a different one each time. The idioms are common English expressions,
+# most of them listed in Wiktionary's "Category:English idioms" (headwords only; no definitions were copied). They are
+# clean, so the variety also thins out the swearing. Works on text already filtered to the 'How rude?' level.
+_VREG = '_voice_variety'
+VARIETY = [
+    ('give', r"\bgive a (?:damn|hoot|shit|sh\*t)\b", ["give a monkey's", 'give two hoots', 'give a fig']),
+    ('as_hell', r"\bas (?:hell|heck)\b", ['as all get-out', 'as they come', 'as anything', 'as an ox', 'to the nines']),
+    ('wh_hell', r"\b(what|who|where|why|how) the (?:hell|heck)\b", [r'\1 on earth', r'\1 in blazes', r'\1 the dickens']),
+    ('hell_yes', r"\b(?:hell|heck) yes\b", ['you bet', 'and how', 'too right', "that's the ticket", 'bang on']),
+    ('tough', r"\btough (?:shit|sh\*t|luck)\b", ['hard cheese', 'tough cookies', 'tough beans']),
+    ('holy', r"\bholy (?:shit|sh\*t|moly)\b", ['holy cow', 'holy mackerel', 'holy smoke']),
+    ('nothing', r"\b(?:fuck|f\*ck|bugger) all\b|\bdiddly squat\b", ['precious little', 'zilch', 'next to nothing']),
+    ('sake', r"\bfor (?:fuck's|f\*ck's) sake\b|\bfor crying out loud\b",
+     ["for heaven's sake", "for Pete's sake", 'for the love of Mike']),
+    ('get_done', r"\bget (?:shit|sh\*t|stuff) done\b",
+     ['get the show on the road', 'get down to brass tacks', 'get a wiggle on']),
+    ('new_stuff', r"\bnew (?:shit|sh\*t|stuff)\b", ['new can of worms', 'new song and dance', 'new caper']),
+    ('stuff', r"\b(this|that) (?:shit|sh\*t|stuff)\b",
+     [r'\1 kettle of fish', r'\1 song and dance', r'\1 whole shebang', r'\1 malarkey']),
+    ('kicks', r"\bkicks ass\b|\brocks\b(?=[.!])", ["is the bee's knees", "is the cat's pyjamas", 'is top drawer']),
+    ('talking', r"\btalking (?:out of (?:its|their) (?:ass|butt)|nonsense)\b",
+     ['talking through its hat', 'blowing hot air', 'full of hot air']),
+    ('move', r"\bmove your (?:ass|arse|butt|bum)\b", ['shake a leg', 'get a wiggle on', 'look lively']),
+    ('watch', r"\bwatch your (?:ass|arse|butt|back)\b", ['watch your step', 'mind your step', 'keep your eyes peeled']),
+    ('piss_off', r"\b(?:piss|p\*ss|buzz) off\b", ['take a hike', 'go fly a kite', 'sling your hook']),
+    ('go_hell', r"\bgo to (?:hell|heck)\b", ['go pear-shaped', 'go south', 'go to the dogs']),
+    ('mess', r"\b(?:shitshow|sh\*tshow|dumpster fire)\b|(?<=of a )circus\b",
+     ["dog's breakfast", 'three-ring circus', 'train wreck', 'dog and pony show']),
+    ('nonsense', r"\b(?:bullshit|bullsh\*t|baloney)\b", ['hot air', 'codswallop', 'tommyrot', 'hogwash']),
+    ('bastards', r"\b(?:bastards|b\*stards|so-and-sos)\b", ['blighters', 'rascals', 'old devils']),
+    ('bastard', r"\b(?:bastard|b\*stard|so-and-so)\b", ['blighter', 'rascal', 'old devil']),
+    ('crap', r"\bcrap\b", ['tosh', 'guff', 'twaddle']),
+    # plain intensifiers last ('a damn thing', 'too damn early', 'absolutely fucking nowhere')
+    ('mod', r"(?<!give a )\b(?:damn|darn|bloody|flipping|fucking|f\*cking)\b(?=\s+[a-z])",
+     ['ruddy', 'blooming', 'blinking', 'dashed', 'deuced', 'flaming', 'thundering', 'perishing']),
+]
+_VARIETY_RX = [(n, re.compile(rx, re.IGNORECASE), alts) for n, rx, alts in VARIETY]
+
+
+def vary(text):
+    """Swap the second and later uses of a swear expression on this page for idioms (see VARIETY)."""
+    if polite() or not isinstance(text, str):
+        return text
+    try:
+        state = st.session_state.setdefault(_VREG, {})
+    except Exception:
+        return text
+    memo = state.setdefault('_memo', {})
+    if text in memo:                 # the same line again on this page (e.g. shared by undertakings): same wording
+        return memo[text]
+    src = text
+    used_alts = state.setdefault('_alts', set())
+    for name, rx, alts in _VARIETY_RX:
+        def repl(m, name=name, alts=alts):
+            n = state.get(name, 0)
+            state[name] = n + 1
+            if n == 0:
+                return m.group(0)
+            k = (n - 1) % len(alts)
+            for a in alts[k:] + alts[:k]:
+                out = m.expand(a)
+                if out.lower() not in used_alts:
+                    used_alts.add(out.lower())
+                    return _case_like(m.group(0), out)
+            return m.group(0)
+        text = rx.sub(repl, text)
+    memo[src] = text
+    return text
+
+
 # ------------------------------------------------------------------ the level
 def level():
     try:
@@ -146,6 +218,7 @@ _REG = '_voice_page_used'
 def new_page():
     try:
         st.session_state[_REG] = set()
+        st.session_state[_VREG] = {}
     except Exception:
         pass
     try:
@@ -192,7 +265,7 @@ def pick(slot, polite_options=None, seed=0, **fmt):
         out = txt if polite() else filter_text(txt)
         if _norm(out) not in reg:
             reg.add(_norm(out))
-            return out
+            return out if polite() else vary(out)
     out = order[0].format(**fmt) if fmt else order[0]
     return out if polite() else filter_text(out)
 
@@ -201,7 +274,7 @@ def say(crude, polite_text):
     """Pick the wording for the current level: the crude line (filtered) or the original polite one."""
     if polite() or not isinstance(crude, str) or not crude.strip():
         return polite_text
-    return filter_text(crude)
+    return vary(filter_text(crude))
 
 
 def item(x):
@@ -450,7 +523,7 @@ LOADING_BY = {
 
 # ------------------------------------------------------------------ grades
 GRADE_POLITE = {'best': 'Best', 'good': 'Good', 'fair': 'Fair', 'avoid': 'Avoid'}
-GRADE_CRUDE = {'best': 'Hell yes', 'good': 'Not bad', 'fair': 'Meh', 'avoid': 'Nope'}
+GRADE_CRUDE = {'best': 'Top notch', 'good': 'Not bad', 'fair': 'Meh', 'avoid': 'Nope'}   # labels: no swearing, since they repeat
 
 
 class GradeText(dict):
@@ -566,7 +639,7 @@ def punchline(fc, seed, rows=None, shift=0, R=None):
         cache[key] = line
         recent.append(line)
         del recent[:-RECENT_MAX]
-    return mark_used(filter_text(line))
+    return mark_used(vary(filter_text(line)))
 
 
 def straight(fc):

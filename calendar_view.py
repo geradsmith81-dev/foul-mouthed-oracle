@@ -13,7 +13,7 @@ import theme
 PAL = theme.PALETTE
 GRADE_COL = theme.GRADE_COLOURS
 import voice
-GRADE_TXT = voice.GRADE_TXT      # 'Best' ... or 'Hell yes' ..., by the 'How rude?' level
+GRADE_TXT = voice.GRADE_TXT      # 'Best' ... or 'Top notch' ..., by the 'How rude?' level
 
 
 @st.cache_data(show_spinner=False, max_entries=8, ttl=3600)
