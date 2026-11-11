@@ -3,9 +3,12 @@
 The Sidereal Oracle with a potty mouth. It draws an accurate chart of the real sky for any moment and place (NASA JPL
 DE440s planet positions via Skyfield, the real IAU constellations at their true widths) and reads it with the rules of
 William Lilly's *Christian Astrology* (London, 1647), then says what it means rudely. The idea comes from joke
-weather apps such as WTForecast; every line was written for this app.
+weather apps such as WTForecast, CARROT Weather and Dirty Weather; every line was written for this app.
+Not affiliated with or endorsed by the makers of these apps.
 
 **How rude?** (sidebar): Full, Some (masked), Clean (tame stand-ins) or Polite (the original Sidereal Oracle wording).
+**Who's talking?**: Friendly, Snarky or Doom-monger (personality, separate from the swearing, an idea from CARROT
+Weather). *Say it straight* swaps the punchline for a plain sentence. No wording appears twice on one page.
 Lilly's own words, page references and scores are never changed.
 
 - Run online on Streamlit Community Cloud: see `DEPLOY GUIDE.txt`.

@@ -42,10 +42,10 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
 
 user_profile.title('The Foul-Mouthed Oracle', 'The Foul-Mouthed Oracle')      # home page title (not personalised)
 # subtitle under the title: The Sidereal Oracle's wording, plus the attitude
-SUBTITLE = ('Horoscope readings of the real sky for any moment and place, using NASA JPL planet movements and the '
-            'actual constellation positions')
+SUBTITLE = ('Horoscope readings of the real sky for any moment and place. Powerfully calculated using NASA JPL '
+            'planet movements and the actual constellation positions.')         # the user's wording
 st.markdown('<p class="lilly-subtitle" style="font-size:1.12rem; line-height:1.45; margin:-0.4rem 0 0.9rem 0; '
-            'color:#f7f1ea;">' + voice.say(SUBTITLE + ". No sugar-coating, no bullshit, and it doesn't give a damn "
+            'color:#f7f1ea;">' + voice.say(SUBTITLE + " No sugar-coating, no bullshit, and it doesn't give a damn "
                                            'about your feelings.', SUBTITLE) + '</p>', unsafe_allow_html=True)
 PHONE = device.phone()
 FULL = device.full_view()          # Simple view: the chart, the sky and the forecast; Full view: also Lilly's tables
@@ -168,14 +168,19 @@ if not voice.polite():
     if st.session_state.get('punch_seed') != seed:         # a new moment or place starts again from its own line
         st.session_state['punch_seed'] = seed
         st.session_state['punch_shift'] = 0
-    line = voice.punchline(fc, seed, rows, st.session_state.get('punch_shift', 0))
+    line = voice.punchline(fc, seed, rows, st.session_state.get('punch_shift', 0), R=R)
     if line:
-        st.markdown(f"<div class='foul-punch'>{line}</div>", unsafe_allow_html=True)
+        plain_mode = bool(st.session_state.get('punch_straight', False))      # 'Say it straight' (CARROT's idea)
+        shown = voice.straight(fc) if plain_mode else line
+        st.markdown(f"<div class='foul-punch{' foul-straight' if plain_mode else ''}'>{shown}</div>",
+                    unsafe_allow_html=True)
         pc1, pc2 = st.columns([1, 1])
         pc1.button(voice.filter_text('Give me another one, damn it'), key='punch_next', icon=':material/refresh:',
-                   on_click=_next_punchline, width='stretch')
+                   on_click=_next_punchline, width='stretch', disabled=plain_mode)
         with pc2:
-            voice.speak_button(line)
+            voice.speak_button(shown)
+        st.toggle('Say it straight', key='punch_straight',
+                  help='Swap the joke for a plain sentence with the same facts, and back.')
 
 left, right = st.columns([1.15, 1])
 with left:
@@ -231,9 +236,11 @@ with st.container(border=True):
         plain_forecast.show_weaknesses(fc, place, local)
     fired = [x.get('id') for x in fc['strengths'] + fc['weaknesses']]
     glossary.chips([g for rid in fired for g in RULE_TERMS.get(rid, [])], 'fc')
-    st.caption(voice.say("The strengths and weaknesses are Lilly's own rules (Christian Astrology, 1647), mainly his "
-                         "'Considerations before Judgment' (pp.121-123), slapped onto the real IAU sky. Where the app "
-                         "had to bend a rule, the line says so. " + plain_forecast.DISCLAIMER_CRUDE, fc['note']))
+    st.caption(fc['note'] if voice.polite() else
+               voice.filter_text("The strengths and weaknesses are Lilly's own rules (Christian Astrology, 1647), "
+                                 "mainly his 'Considerations before Judgment' (pp.121-123), slapped onto the real IAU "
+                                 "sky. Where the app had to bend a rule, the line says so. ")
+               + voice.pick('disclaimer', seed='chart'))
     st.download_button('Download forecast (.txt)',
                        forecast.as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
                                        + f"{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f})"),
@@ -246,6 +253,11 @@ if not FULL:
     st.stop()
 
 st.subheader("The planets in Lilly's words")
+st.caption('For each planet: fortitudes, debilities and the net score. Lilly: subtract the lesser number from the '
+           f'greater, "and so judge" ([p.181]({glossary.scan_url(181)})).')
+_house_told = {}                       # each house's meaning is quoted once on the page; later planets point back
+_house_seen = []                       # ... each time in a different wording
+_POINTERS = ['its meaning is quoted under {who} above', "Lilly's words for it are given under {who}", 'see {who} above for what it signifies', 'described already, with {who}', 'as told under {who}', 'its signification appears with {who}']
 for p in R['planets']:
     head = (f"{cw.GLYPH[p['planet']]} {p['planet']} in {p['constellation']}"
             + (f" (≈ {p['sign']} {p['sign_deg']:.0f}°)" if p['sign'] else '') + f" · {ORD(p['house'])} house · net {p['net']:+d}")
@@ -257,14 +269,20 @@ for p in R['planets']:
         if p['true_constellation'] != p['constellation']:
             st.caption(f"Its actual position (RA/Dec) lies in {p['true_constellation']}, off the ecliptic band. "
                        f"It is read by the ecliptic band ({p['constellation']}).")
-        st.markdown(f"**The {ORD(p['house'])} house** (Lilly): {ll.house_meaning(p['house'], 400)}")
+        if p['house'] in _house_told:
+            _n = sum(1 for q_ in _house_seen if q_ == p['house'])
+            _house_seen.append(p['house'])
+            st.markdown(f"**The {ORD(p['house'])} house**: " + _POINTERS[_n % len(_POINTERS)].format(
+                who=_house_told[p['house']]) + '.')
+        else:
+            _house_told[p['house']] = p['planet']
+            st.markdown(f"**The {ORD(p['house'])} house** (Lilly): {ll.house_meaning(p['house'], 400)}")
         e1, e2 = st.columns(2)
         e1.markdown('**Essential dignities**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
                                                                    for _, txt, v, tag in p['essential']), unsafe_allow_html=True)
         e2.markdown('**Accidental**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
                                                          for _, txt, v, tag in p['accidental']), unsafe_allow_html=True)
-        st.caption(f"Fortitudes {p['fortitudes']} · Debilities {p['debilities']} · Net {p['net']:+d}. Lilly: subtract the lesser "
-                   f'number from the greater, "and so judge" ([p.181]({glossary.scan_url(181)})).')
+        st.caption(f"{p['planet']}: fortitudes {p['fortitudes']} · debilities {p['debilities']} · net {p['net']:+d}")
         glossary.chips([glossary.item_term(k) for k, *_ in p['essential'] + p['accidental']], 'pl_' + p['planet'])
 
 st.subheader('Aspects (Lilly\'s moieties of orbs, p.107)')

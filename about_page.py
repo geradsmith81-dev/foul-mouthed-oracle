@@ -23,10 +23,19 @@ st.markdown(voice.say(
     "(London, 1647). This page explains, in plain words, where every part comes from and what the app adds of its own."))
 with st.expander('Why does it swear?', icon=':material/sentiment_very_dissatisfied:'):
     st.markdown("""
-The idea comes from joke weather apps such as *What The Forecast?!!*, which pair a real forecast with one big, rude
-line about it, and let you turn the swearing up or down. This app does the same with the sky: the chart, the rules and
-the scores are exactly those of The Sidereal Oracle, and only the wording changes. All of its lines were written for
-this app; none are copied from other apps.
+The idea comes from joke weather apps such as *What The Forecast?!!*, *CARROT Weather* and *Dirty Weather*, which
+pair a real forecast with one big, rude line about it and let you choose how rude it gets. This app does the same
+with the sky: the chart, the rules and the scores are exactly those of The Sidereal Oracle, and only the wording
+changes. All of its lines were written for this app; none are copied from other apps.
+Not affiliated with or endorsed by the makers of these apps.
+
+From *CARROT Weather* come the separate personality setting and *Say it straight*. From the complaints about
+*Dirty Weather* come two rules: the jokes must not keep repeating, and the censoring must be the same everywhere.
+
+**Who's talking?** (in the sidebar) picks the personality: **Friendly** (warm teasing), **Snarky** (sarcastic, the
+default) or **Doom-monger** (theatrical cosmic dread about the sky, never aimed at you). *Say it straight*, under the
+punchline, swaps the joke for a plain sentence with the same facts. Nothing is said twice on one page, and the
+punchline avoids lines you have seen recently.
 
 **How rude?** (in the sidebar) sets the level on every page:
 

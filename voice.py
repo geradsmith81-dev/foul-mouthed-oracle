@@ -41,7 +41,8 @@ _IDIOMS_CLEAN = [
     (r'shit hits the fan', 'muck hits the fan'), (r'holy shit', 'holy moly'), (r'pissed themselves laughing', 'nearly wet themselves laughing'), (r'piss off', 'buzz off'),
     (r'arse-end', 'tail end'), (r'ass-end', 'tail end'), (r'pain in the ass', 'pain in the neck'),
     (r'hell yes', 'heck yes'), (r'hell no', 'heck no'), (r'what the hell', 'what the heck'),
-    (r'shitshow', 'circus'), (r'(get|start|this|that|new) shit', r'\1 stuff'),
+    (r'shitshow', 'circus'), (r'good shit', 'good stuff'), (r'watch your ass', 'watch your back'),
+    (r'full of shit', 'full of baloney'), (r'(get|start|this|that|new) shit', r'\1 stuff'),
 ]
 _WORDS_CLEAN = [
     ('motherfucking', 'mother-flipping'), ('fucking', 'flipping'), ('fucked', 'fricked'), ('fuckery', 'foolery'),
@@ -104,13 +105,96 @@ def polite():
 
 
 def switch():
-    """The sidebar control. Rendered by app.py on every page."""
+    """The sidebar controls 'How rude?' (profanity) and 'Who's talking?' (personality). Rendered by app.py."""
     if KEY not in st.session_state:
         st.session_state[KEY] = DEFAULT
+    if PKEY not in st.session_state:
+        st.session_state[PKEY] = PDEFAULT
     try:
         st.sidebar.segmented_control('How rude?', LEVELS, key=KEY, help=HELP, required=True, width='stretch')
+        st.sidebar.segmented_control("Who's talking?", PERSONAS, key=PKEY, help=PHELP, required=True,
+                                     width='stretch', disabled=polite())
     except TypeError:            # an older Streamlit without 'required'
         st.sidebar.radio('How rude?', LEVELS, key=KEY, help=HELP, horizontal=True)
+        st.sidebar.radio("Who's talking?", PERSONAS, key=PKEY, help=PHELP, horizontal=True, disabled=polite())
+
+
+# ------------------------------------------------------------------ personality (an idea from CARROT Weather)
+# Separate from the swearing: the same facts said by three characters. Polite switches the personality off.
+PERSONAS = ('Friendly', 'Snarky', 'Doom-monger')
+PDEFAULT = 'Snarky'
+PKEY = 'voice_persona'
+PHELP = ("Who delivers the reading. Friendly: warm teasing. Snarky: sarcastic. Doom-monger: theatrical cosmic dread "
+         "about the sky (never aimed at you). The swearing is set separately under 'How rude?'. Off in Polite.")
+
+
+def persona():
+    try:
+        v = st.session_state.get(PKEY, PDEFAULT)
+    except Exception:
+        v = PDEFAULT
+    return v if v in PERSONAS else PDEFAULT
+
+
+# ------------------------------------------------------------------ no phrase twice on one page (user request)
+# Every run of a page starts a fresh register (app.py calls new_page()). Each box that says something takes a
+# wording nobody else on the page has used yet; repeated slots (grade meanings, headings, labels, disclaimers) have
+# several variants for that reason.
+_REG = '_voice_page_used'
+
+
+def new_page():
+    try:
+        st.session_state[_REG] = set()
+    except Exception:
+        pass
+    try:
+        import glossary
+        getattr(glossary, 'new_page', lambda: None)()
+    except Exception:
+        pass
+
+
+def _norm(t):
+    t = re.sub(r'<[^>]+>', ' ', str(t)).replace('*', '')
+    return re.sub(r'[^a-z0-9 ]+', '', re.sub(r'\s+', ' ', t.lower())).strip()
+
+
+def _register():
+    try:
+        return st.session_state.setdefault(_REG, set())
+    except Exception:
+        return set()
+
+
+def mark_used(text):
+    _register().add(_norm(text))
+    return text
+
+
+def is_used(text):
+    return _norm(text) in _register()
+
+
+def pick(slot, polite_options=None, seed=0, **fmt):
+    """A wording for `slot` that is not yet used on this page, in the current voice and personality."""
+    if polite():
+        opts = list(polite_options or POLITE_PHRASES.get(slot, []))
+    else:
+        opts = list(PHRASES[slot][persona()])
+    if not opts:
+        return ''
+    k = zlib.crc32(str(seed).encode()) % len(opts)
+    order = opts[k:] + opts[:k]
+    reg = _register()
+    for o in order:
+        txt = o.format(**fmt) if fmt else o
+        out = txt if polite() else filter_text(txt)
+        if _norm(out) not in reg:
+            reg.add(_norm(out))
+            return out
+    out = order[0].format(**fmt) if fmt else order[0]
+    return out if polite() else filter_text(out)
 
 
 def say(crude, polite_text):
@@ -145,6 +229,225 @@ def plain(j):
     return [(rid, filter_text(c) if c else t, p, k) for (rid, t, p, k), c in zip(j['plain'], cr)]
 
 
+# ------------------------------------------------------------------ variant wordings for repeated slots
+# One list per personality; at least four variants where a page can show the slot four times (the four undertakings).
+# No sentence is shared between variants, so no two boxes on a page say the same thing.
+PHRASES = {
+    'grade_best': {
+        'Snarky': ["Hell yes. This hour sits in the top tenth of the week, so stop dithering.",
+                   "Top-tier hour. The week barely gets better than this, so move your ass.",
+                   "One of the finest hours of the whole damn week. Go.",
+                   "Prime time: hardly any hour this week beats it."],
+        'Friendly': ["Oh, this is a lovely hour, right up with the best tenth of the week.",
+                     "Gold star! Few hours this week can touch this one.",
+                     "What a cracking time, near the very top of the week.",
+                     "Treat yourself: this hour ranks among the week's finest."],
+        'Doom-monger': ["Rejoice, briefly: this hour stands among the week's finest, and such mercy is rare.",
+                        "The heavens relent. Few hours this week will be kinder.",
+                        "A window of grace, in the top tenth of the week. It will not last.",
+                        "Even this doom-laden sky smiles on the hour. Seize it before it remembers itself."]},
+    'grade_good': {
+        'Snarky': ["Not bad. Better than most hours this week.",
+                   "Decent. Most of the week is worse than this.",
+                   "A respectable hour, comfortably above the week's usual crap.",
+                   "Good enough to get on with it, which most hours this week can't claim."],
+        'Friendly': ["Nice! This hour beats most of the week.",
+                     "A good one, comfortably nicer than the usual hour.",
+                     "Pretty pleasant, as hours go: well above average this week.",
+                     "Solid choice. Most of this week's hours fall short of it."],
+        'Doom-monger': ["A tolerable hour. Most of the week is bleaker.",
+                        "Better than most hours ahead, which is not saying much.",
+                        "The gloom lifts a little here: an above-average hour.",
+                        "Of the many grim hours this week, this is one of the less grim."]},
+    'grade_fair': {
+        'Snarky': ["Meh. No warning, nothing special: a beige sort of hour.",
+                   "An ordinary hour. Nobody will write songs about it.",
+                   "Middling. It won't hurt, it won't help.",
+                   "Perfectly average, like supermarket bread."],
+        'Friendly': ["An everyday hour: no warnings, no fireworks.",
+                     "Fine and ordinary, with nothing against it and nothing special for it.",
+                     "A plain, gentle hour. Nothing wrong with that.",
+                     "Middle of the road, with no red flags."],
+        'Doom-monger': ["A grey hour, neither cursed nor blessed.",
+                        "The void shrugs. Nothing marks this hour for good or ill.",
+                        "Ordinary, as most hours are before the end.",
+                        "No omen either way. The sky simply waits."]},
+    'grade_avoid': {
+        'Snarky': ["Nope. One of Lilly's cautions applies, so he'd sit on his hands.",
+                   "Hard pass: a Lilly warning is in force right now.",
+                   "Don't. Lilly flagged this hour with one of his cautions.",
+                   "Lilly would refuse this one outright. Pick another hour, genius."],
+        'Friendly': ["Maybe not this one: one of Lilly's cautions applies.",
+                     "Best to wait, sweetheart. Lilly has a warning out for this hour.",
+                     "Let this hour pass; Lilly would have advised against it.",
+                     "Not ideal. One of Lilly's warnings is in play."],
+        'Doom-monger': ["Forbidden. One of Lilly's dread cautions hangs over this hour.",
+                        "The omens forbid it: Lilly's warnings are upon this moment.",
+                        "Turn back. Lilly himself would have bolted the door.",
+                        "Ill-starred. A caution from Lilly darkens this hour."]},
+    'best_label': {
+        'Snarky': ['Best damn time this week', 'Your best shot this week', 'When to actually do it',
+                   "The week's sweet spot"],
+        'Friendly': ['Your best time this week', 'The loveliest time this week', 'Pencil this in',
+                     "The week's happy hour"],
+        'Doom-monger': ["The week's one mercy", 'The least doomed hour', 'When the stars relent',
+                        'Your narrow window']},
+    'best_none': {
+        'Snarky': ["Every single hour this week has a Lilly warning on it. Tough luck.",
+                   "Not one clean hour all week for this. Try next week.",
+                   "The whole week is flagged for this one. Sit tight.",
+                   "Zero usable hours this week. The sky says wait."],
+        'Friendly': ["No luck this week, I'm afraid: every hour carries a warning.",
+                     "This week isn't the one for it, as every hour has a caution.",
+                     "Let this one wait for another week, since no hour is clear.",
+                     "Every hour this week has a little warning attached. Sorry!"],
+        'Doom-monger': ["The whole week lies under Lilly's shadow for this.",
+                        "No hour escapes the warnings. Not one.",
+                        "Seven days, and all of them marked. Wait.",
+                        "Every hour this week is cursed for this undertaking."]},
+    'helping': {
+        'Snarky': ['Going for it:', 'The good shit:', 'Points in its favour:', "What's working:"],
+        'Friendly': ['Cheering you on:', "What's on your side:", 'Good news:', 'Helping hands:'],
+        'Doom-monger': ['Faint hope:', 'What little helps:', 'Scant comfort:', 'A glimmer:']},
+    'take_care': {
+        'Snarky': ['The catch:', 'Watch your ass:', 'What could screw it up:', 'The fine print:'],
+        'Friendly': ['Gently does it:', 'A little caution:', 'Mind these:', 'Keep an eye on:'],
+        'Doom-monger': ['The shadows:', 'What lurks:', 'Ill omens:', 'Beware:']},
+    'shared_title': {
+        'Snarky': ['Goes for all four, like it or not'], 'Friendly': ['True for all four'],
+        'Doom-monger': ['Hangs over all four']},
+    'shared_intro': {
+        'Snarky': ["These apply to the whole chart, so they're listed once here instead of four bloody times below."],
+        'Friendly': ["These are about the whole sky right now, so you'll find them once here rather than in every box."],
+        'Doom-monger': ["These omens hang over the entire sky, so they are spoken once, here, and not again below."]},
+    'disclaimer': {
+        'Snarky': ["Reality check: this is a 1647 astrology book with a potty mouth, for fun and reflection. Controlled "
+                   "studies have never found astrology to predict a damn thing, so don't make important decisions with it.",
+                   "Fine print: astrology has flunked every controlled test going, so treat this as a laugh, not a plan.",
+                   "Reminder: nothing here has passed a scientific test. Don't bet anything that matters on it."],
+        'Friendly': ["Just so you know: astrology hasn't held up in controlled studies, so enjoy this for fun and "
+                     "reflection, not decisions.",
+                     "A friendly reminder: these readings come from a 1647 book. Science hasn't found astrology "
+                     "predictive, so keep it light.",
+                     "Please don't base big decisions on this; studies haven't found that astrology works."],
+        'Doom-monger': ["Heed this above all: no controlled study has found astrology to foretell anything. Decide "
+                        "nothing grave by it.",
+                        "The only certain prophecy here: science has never found astrology predictive. Treat this "
+                        "as theatre.",
+                        "Be warned: these omens come from a 1647 book, and controlled studies have not found such "
+                        "omens to work."]},
+}
+POLITE_PHRASES = {
+    'grade_best': ["This moment is one of the best tenth of hours this week.",
+                   "Few hours this week score higher than this one.",
+                   "A strong moment, in the top tenth of the week.",
+                   "Among the most favourable hours of the week."],
+    'grade_good': ["This moment is better than most hours this week.", "Above average for the week.",
+                   "A favourable hour, ahead of the usual hour this week.",
+                   "More promising than most of this week's hours."],
+    'grade_fair': ["This is an ordinary hour: no warning, but nothing special.",
+                   "An average hour, with no cautions against it.",
+                   "Neither favoured nor warned against.", "A middling hour for this undertaking."],
+    'grade_avoid': ["Lilly would wait: one of his cautions applies at this moment.",
+                    "One of Lilly's cautions applies, so he would not begin now.",
+                    "Lilly's warnings rule this moment out.",
+                    "A caution from Lilly applies; another hour would be wiser."],
+    'best_label': ['Best time this week', 'Most favourable time this week', 'Recommended time this week',
+                   "The week's strongest time"],
+    'best_none': ["Every hour this week has one of Lilly's warnings for this undertaking.",
+                  "No hour this week is free of Lilly's cautions for this.",
+                  "Lilly's cautions cover the whole week for this undertaking.",
+                  "This week offers no hour without a warning for this."],
+    'helping': ['Helping:', 'In its favour:', 'Working for it:', 'On the plus side:'],
+    'take_care': ['Take care:', 'Against it:', 'Watch out for:', 'On the minus side:'],
+    'shared_title': ['Applies to all four'],
+    'shared_intro': ["These signs concern the whole chart, so they are listed once here and not repeated in each "
+                     "undertaking below."],
+}
+
+# Overview of the Forecast box and of 'In short' (two wordings, so both can be on one page)
+OVERVIEW = {
+    'Snarky': dict(
+        word=('strong as hell', 'pretty solid', 'neither here nor there', 'a bit wobbly', 'weak as piss'),
+        lord=["**{con}** is rising, so **{lord}** is the planet standing in for you. By Lilly's points it's "
+              "**{word}** (net {n:+d}), in the {house} house.",
+              "Your stand-in tonight is **{lord}**, because **{con}** is coming up over the horizon. It scores "
+              "{n:+d} on Lilly's table, which makes it **{word}**, and it's parked in the {house} house."],
+        nolord=["**{con}** is rising. It has no sign in Lilly, so no planet stands for you and half his tests go "
+                "straight out the damn window.",
+                "With **{con}** on the horizon there's no Lilly sign and so no planet for you; a good chunk of his "
+                "tests simply can't be run."],
+        tally=["The Forecast found **{s} good sign{ss}** and **{w} bit{ws} of bad news**.",
+               "Count: **{s} point{ss} in your favour**, **{w} against**."],
+        good=[" On balance: **pretty damn good**.", " Net result: **the sky is on your side**."],
+        bad=[" On balance: **a bit of a shitshow**. Prepare, wait or go easy; this is not the moment to push your luck.",
+             " Net result: **rough**. Keep your head down and don't force anything."],
+        mixed=[" On balance: **meh, mixed**.", " Net result: **a coin toss**."],
+        caution=["{c} of the bad bits {isare} among Lilly's *considerations before judgment* (marked ⚠). They don't "
+                 "say things will go to hell; they say this chart might be full of shit, so take the rest of it "
+                 "with a pinch of salt.",
+                 "Watch the ⚠ marks: {c} of them {isare} Lilly's *considerations before judgment*, his way of saying "
+                 "the chart itself may be unreliable, not that doom is coming."]),
+    'Friendly': dict(
+        word=('wonderfully strong', 'doing nicely', 'perfectly balanced', 'a little tired', 'having a rough day'),
+        lord=["**{con}** is rising, which makes **{lord}** your planet for this moment. On Lilly's points it's "
+              "**{word}** (net {n:+d}), sitting in the {house} house.",
+              "With **{con}** coming up, your planet is **{lord}**. Lilly's table gives it {n:+d}, so it's **{word}**, "
+              "and you'll find it in the {house} house."],
+        nolord=["**{con}** is rising, and Lilly's book has no sign for it, so there's no planet for you this time "
+                "and several of his tests can't be made.",
+                "Rising now is **{con}**, a constellation Lilly never gave a sign, so no planet speaks for you and "
+                "some tests have to sit this one out."],
+        tally=["The Forecast found **{s} encouraging sign{ss}** and **{w} thing{ws} to watch**.",
+               "Tally: **{s} hopeful sign{ss}**, **{w} gentle warning{ws}**."],
+        good=[" Overall it's **really rather lovely**.", " All in all, **things look bright**."],
+        bad=[" Overall it **asks for care**: a time to rest, prepare or go gently.",
+             " All in all, **go easy on yourself** and save big moves for later."],
+        mixed=[" Overall it's **a mixed bag**.", " All in all, **a bit of both**."],
+        caution=["{c} of the warnings {isare} among Lilly's *considerations before judgment* (marked ⚠). They don't "
+                 "mean things will go wrong, just that the chart may not be safe to read, so hold the rest lightly.",
+                 "The ⚠ marks ({c}) are Lilly's *considerations before judgment*: a gentle note that the chart "
+                 "itself may be hard to read, rather than a bad sign."]),
+    'Doom-monger': dict(
+        word=('terrifyingly strong', 'holding firm', 'suspended between fates', 'faltering', 'all but extinguished'),
+        lord=["**{con}** ascends, and so **{lord}** answers for you. By Lilly's reckoning it is **{word}** (net "
+              "{n:+d}), lodged in the {house} house.",
+              "As **{con}** climbs the eastern sky, **{lord}** is bound to your fate. Lilly's tally reads {n:+d}: "
+              "**{word}**, from the {house} house."],
+        nolord=["**{con}** ascends, a constellation without a sign in Lilly's book. No planet answers for you, and "
+                "his surest tests fall silent.",
+                "The horizon brings **{con}**, unknown to Lilly's signs: you stand unrepresented, and many of his "
+                "tests cannot be made."],
+        tally=["The Forecast found **{s} sign{ss} of hope** and **{w} omen{ws} of trouble**.",
+               "The reckoning: **{s} mercy{ss}**, **{w} portent{ws}**."],
+        good=[" On balance: **a rare reprieve**.", " Verdict: **the heavens are, for now, merciful**."],
+        bad=[" On balance: **dark days**. Prepare, wait, and do not tempt the sky.",
+             " Verdict: **the omens gather**. Hold back."],
+        mixed=[" On balance: **the scales hang level**.", " Verdict: **fate undecided**."],
+        caution=["{c} of the portents {isare} among Lilly's *considerations before judgment* (marked ⚠). They do not "
+                 "foretell ruin; they warn that this chart may deceive, so trust the rest of it less.",
+                 "Mark the ⚠ signs, {c} in number: Lilly's *considerations before judgment*, warnings that the chart "
+                 "itself may lie rather than that disaster comes."]),
+}
+
+# Loading messages, one set per personality (worded unlike any punchline)
+LOADING_BY = {
+    'Snarky': ['Shoving the planets into place ...', 'Asking the Moon what the hell she is doing ...',
+               'Digging William Lilly out of 1647 ...', 'Untangling the damn constellations ...',
+               'Pestering NASA for the planet positions ...', 'Hold your horses, the sky is big ...',
+               'Counting the planets. Still seven. Still a pain in the ass ...',
+               'Polishing the crystal ball. Someone sneezed on it ...'],
+    'Friendly': ['Warming up the telescope ...', 'Fetching the planets, gently ...',
+                 'Asking the Moon nicely where she has got to ...', 'Plumping the cushions on the zodiac ...',
+                 'Making Saturn a cup of tea ...', 'Tidying the constellations ...',
+                 "Checking NASA's planet tables ...", "Dusting off William Lilly's book ..."],
+    'Doom-monger': ['Consulting the abyss ...', 'Unsealing the tome of 1647 ...',
+                    "Reading the sky's last will and testament ...", 'Counting the omens. There are many ...',
+                    'The planets assemble in silence ...', 'Peering into the dark between the stars ...',
+                    "Summoning NASA's ephemeris from the deep ...", 'Waiting for the heavens to pronounce ...'],
+}
+
+
 # ------------------------------------------------------------------ grades
 GRADE_POLITE = {'best': 'Best', 'good': 'Good', 'fair': 'Fair', 'avoid': 'Avoid'}
 GRADE_CRUDE = {'best': 'Hell yes', 'good': 'Not bad', 'fair': 'Meh', 'avoid': 'Nope'}
@@ -169,7 +472,9 @@ GRADE_TXT = GradeText()
 @st.cache_data(show_spinner=False)
 def _punchlines(mtime):
     df = pd.read_csv(os.path.join(HERE, 'data', 'punchlines.csv'), encoding='utf-8')
-    return {k: g['text'].tolist() for k, g in df.groupby('trigger')}
+    if 'persona' not in df.columns:
+        df['persona'] = PDEFAULT
+    return {(t, p): g['text'].tolist() for (t, p), g in df.groupby(['trigger', 'persona'])}
 
 
 def _bank():
@@ -177,9 +482,11 @@ def _bank():
     return _punchlines(os.path.getmtime(path))
 
 
-# Forecast rules (and two extra sky conditions) that get their own punchlines
+# Conditions with their own punchlines: Forecast rules, plus conditions read straight from the sky
 TRIGGERS = ('moon_void', 'not_radical', 'saturn_asc', 'cazimi', 'asc_ophiuchus', 'lord_asc_combust',
-            'moon_via_combusta', 'mercury_retro', 'reception')
+            'moon_via_combusta', 'reception', 'full_moon', 'new_moon', 'mercury_retro', 'venus_retro', 'mars_retro',
+            'jupiter_retro', 'saturn_retro', 'many_retro', 'lord_strong', 'lord_weak')
+_CLASSICAL = ('Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn')
 
 
 def verdict(fc):
@@ -187,49 +494,97 @@ def verdict(fc):
     return 'good' if s > w + 1 else 'bad' if w > s + 1 else 'mixed'
 
 
-def candidates(fc, rows=None):
-    """Every punchline that fits this chart: lines for the special conditions first, then the overall verdict."""
-    bank = _bank()
+def conditions(fc, rows=None, R=None):
+    """The special conditions of this chart that have punchlines."""
     fired = {x.get('id') for x in fc['strengths'] + fc['weaknesses']}
-    if rows is not None and any(r['body'] == 'Mercury' and r.get('speed', 0) < 0 for r in rows):
-        fired.add('mercury_retro')
-    special = [t for k in TRIGGERS if k in fired for t in bank.get(k, [])]
-    return special, bank.get('verdict_' + verdict(fc), [])
+    if rows is not None:
+        by = {r['body']: r for r in rows}
+        retro = [p for p in _CLASSICAL if p in by and by[p].get('speed', 0) < 0]
+        fired |= {p.lower() + '_retro' for p in retro}
+        if len(retro) >= 3:
+            fired.add('many_retro')
+        if 'Sun' in by and 'Moon' in by and 'ecl_lon' in by['Sun'] and 'ecl_lon' in by['Moon']:
+            e = (by['Moon']['ecl_lon'] - by['Sun']['ecl_lon']) % 360
+            if e < 15 or e > 345:
+                fired.add('new_moon')
+            elif abs(e - 180) < 15:
+                fired.add('full_moon')
+    if R is not None and R.get('lord_of_asc'):
+        n = {p['planet']: p['net'] for p in R['planets']}.get(R['lord_of_asc'], 0)
+        if n >= 10:
+            fired.add('lord_strong')
+        elif n <= -10:
+            fired.add('lord_weak')
+    return [k for k in TRIGGERS if k in fired]
 
 
-def punchline(fc, seed, rows=None, shift=0):
-    """One line for this chart. The same moment and place always give the same line; 'shift' moves to the next."""
-    special, general = candidates(fc, rows)
-    rng = random.Random(zlib.crc32(str(seed).encode()))
+def candidates(fc, rows=None, R=None, who=None):
+    """Every punchline that fits this chart for this personality: special conditions, then the overall verdict."""
+    bank, who = _bank(), who or persona()
+    special = [t for k in conditions(fc, rows, R) for t in bank.get((k, who), [])]
+    return special, bank.get(('verdict_' + verdict(fc), who), [])
+
+
+def _order(fc, seed, rows, R, who):
+    special, general = candidates(fc, rows, R, who)
+    rng = random.Random(zlib.crc32(f'{seed}|{who}'.encode()))
     special, general = special[:], general[:]
     rng.shuffle(special)
     rng.shuffle(general)
-    # alternate: a line about a special condition, then a line about the overall verdict, and so on
-    order = []
+    order = []                     # alternate: a line about a special condition, then one about the verdict
     while special or general:
         if special:
             order.append(special.pop())
         if general:
             order.append(general.pop())
+    return order
+
+
+RECENT_MAX = 40
+
+
+def punchline(fc, seed, rows=None, shift=0, R=None):
+    """One line for this chart. The same moment, place, personality and 'shift' give the same line within a visit;
+    lines already shown recently in this visit are skipped (no joke on repeat, the main complaint about Dirty
+    Weather), as long as there are others left."""
+    who = persona()
+    order = _order(fc, seed, rows, R, who)
     if not order:
         return ''
-    return filter_text(order[shift % len(order)])
+    try:
+        cache = st.session_state.setdefault('_punch_pick', {})
+        recent = st.session_state.setdefault('_punch_recent', [])
+    except Exception:
+        cache, recent = {}, []
+    key = (str(seed), int(shift), who)
+    line = cache.get(key)
+    if line not in order:
+        k = shift % len(order)
+        rot = order[k:] + order[:k]
+        fresh = [t for t in rot if t not in recent and not is_used(filter_text(t))]
+        line = (fresh or rot)[0]
+        cache[key] = line
+        recent.append(line)
+        del recent[:-RECENT_MAX]
+    return mark_used(filter_text(line))
+
+
+def straight(fc):
+    """'Say it straight' (an idea from CARROT Weather): the punchline's facts in one plain sentence."""
+    s, w = len(fc['strengths']), len(fc['weaknesses'])
+    word = {'good': 'encouraging', 'bad': 'one that calls for care', 'mixed': 'mixed'}[verdict(fc)]
+    return mark_used(f"Straight answer: Lilly's rules give this moment {s} point{'s' if s != 1 else ''} for and "
+                     f"{w} against, so the overall picture is {word}.")
 
 
 # ------------------------------------------------------------------ loading messages
-LOADING = [
-    'Shoving the planets into place ...', 'Asking the Moon what the hell she is doing ...',
-    'Waking up Saturn. He is a grumpy old bastard in the mornings ...', 'Digging William Lilly out of 1647 ...',
-    'Untangling the damn constellations ...', 'Pestering NASA for the planet positions ...',
-    'Hold your horses, the sky is big ...', 'Counting the planets. Still seven. Still a pain in the ass ...',
-    'Polishing the crystal ball. Someone sneezed on it ...', 'Bribing Mercury to stop going backwards ...',
-]
+LOADING = LOADING_BY['Snarky']
 
 
 def loading(polite_text):
     if polite():
         return polite_text
-    return filter_text(random.choice(LOADING))
+    return filter_text(random.choice(LOADING_BY[persona()]))
 
 
 # ------------------------------------------------------------------ reading the punchline out loud
@@ -261,7 +616,9 @@ CSS = """<style>
 .foul-punch { font-size: 1.65rem; line-height: 1.3; font-weight: 700; color: #ffffff; margin: 0.2rem 0 0.7rem 0;
   padding: 0.9rem 1.1rem; border-left: 6px solid #f2994a; border-radius: 0.6rem;
   background: rgba(17, 25, 39, 0.82); text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
-@media (max-width: 640px) { .foul-punch { font-size: 1.3rem; padding: 0.7rem 0.85rem; } }
+.foul-punch.foul-straight { font-size: 1.2rem; font-weight: 600; border-left-color: #6fd0dc; }
+@media (max-width: 640px) { .foul-punch { font-size: 1.3rem; padding: 0.7rem 0.85rem; }
+  .foul-punch.foul-straight { font-size: 1.05rem; } }
 </style>"""
 
 

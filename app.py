@@ -69,6 +69,7 @@ import device
 
 st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=device.phone()), unsafe_allow_html=True)
 import voice
+voice.new_page()               # no phrase twice on one page: a fresh register for this run
 st.markdown(voice.CSS, unsafe_allow_html=True)
 # online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
 getattr(user_profile, 'device_sync', lambda: None)()

@@ -1,59 +1,389 @@
-trigger,text
-verdict_good,"Holy shit, the planets actually like you today. Go do something before they change their minds."
-verdict_good,The whole damn solar system is giving you a thumbs up. Try not to trip over it.
-verdict_good,Even Saturn isn't being a dick right now. Go nuts.
-verdict_good,Good vibes from Mercury to Saturn. Put some trousers on and get out there.
-verdict_good,Lilly would have charged extra for a chart this good.
-verdict_good,"The sky has your back today. Tomorrow, who the hell knows."
-verdict_good,"Seven planets walk into a bar, and every one of them buys you a drink."
-verdict_good,Green lights all the way up. Floor it.
-verdict_good,"The cosmos is in a suspiciously good mood. Don't ask questions, just go."
-verdict_good,Today the heavens are rooting for you. It's weird for everyone.
-verdict_good,This chart kicks ass. Lilly would have framed it.
-verdict_good,"The stars are aligned. Not literally, that's not how any of this works, but close enough."
-verdict_mixed,"Meh. The sky can't make up its damn mind, so neither can I."
-verdict_mixed,"Half good, half crap. Like most Tuesdays."
-verdict_mixed,The planets are arguing among themselves. Grab popcorn and keep your head down.
-verdict_mixed,"A cosmic shrug. Go ahead, but don't bet the house."
-verdict_mixed,"Some planets are cheering, some are heckling. Classic."
-verdict_mixed,"Not great, not terrible: the sky's version of lukewarm coffee."
-verdict_mixed,"Mixed signals from the heavens. Story of your life, huh?"
-verdict_mixed,"The universe says 'maybe', which is universe for 'figure it out yourself, dumbass'."
-verdict_mixed,A solid 'eh' from the solar system.
-verdict_mixed,The sky is sitting on the fence and its arse is getting sore.
-verdict_bad,The sky is a dumpster fire today. Go back to bed.
-verdict_bad,Nope. The planets took one look at your plans and pissed themselves laughing.
-verdict_bad,"Today's forecast: cloudy, with a strong chance of bullshit."
-verdict_bad,Lilly would have taken one look at this chart and poured himself a stiff drink.
-verdict_bad,The cosmos is not in the mood. You shouldn't be either.
-verdict_bad,Big plans? The planets say hold my beer.
-verdict_bad,Batten down the hatches. The heavens are being total assholes.
-verdict_bad,Put the big decisions down and back away slowly.
-verdict_bad,This is a sweatpants-and-snacks kind of sky.
-verdict_bad,Every troublemaker planet in the neighbourhood turned up to your party. Uninvited.
-verdict_bad,"If the sky were a restaurant, this would be one star and food poisoning."
-verdict_bad,Today the universe chose violence. Stay inside.
-moon_void,"The Moon is void of course, wandering around like she forgot why she walked into the room. Start nothing."
-moon_void,Void Moon: anything you begin now goes absolutely fucking nowhere. Great time for a nap.
-moon_void,The Moon isn't talking to anyone. Take the hint and don't start shit.
-moon_void,"Void Moon. Finish your chores, eat a sandwich and leave the big stuff for later."
-not_radical,This chart is so off that Lilly wouldn't even read it. Who the hell am I to argue?
-not_radical,The sky failed its own entry exam. Take this reading with a shovel of salt.
-not_radical,The planet of the hour and your planet have nothing in common. This reading is basically a drunk guess.
-saturn_asc,"Saturn is rising, the grumpy old bastard. Everything takes longer today."
-saturn_asc,"Saturn is on the horizon with his clipboard. Expect paperwork, queues and delays."
-saturn_asc,Saturn rising: the universe has put you on hold. Your call is important to it. Allegedly.
-cazimi,"A planet is sitting dead centre in the Sun and loving it. Cazimi, baby."
-cazimi,"Somebody up there is cazimi: right in the heart of the Sun, strong as hell."
-asc_ophiuchus,"Ophiuchus is rising. Your horoscope app never mentioned it, did it? Lilly didn't either. Total chaos."
-asc_ophiuchus,The thirteenth constellation is rising and nobody knows what the hell to do with it.
-asc_ophiuchus,Ophiuchus on the horizon: the snake-handler has entered the chat and broken the rules.
-lord_asc_combust,Your planet is getting burned to a crisp by the Sun. Keep your head down and wear sunscreen.
-lord_asc_combust,"Your planet is lost in the Sun's glare. Today, you're the background extra in someone else's movie."
-moon_via_combusta,"The Moon is on the Burnt Road, the sketchiest neighbourhood in the sky. Lock the doors."
-moon_via_combusta,Via Combusta: the Moon is taking a shortcut through a bad part of town. Don't follow her.
-mercury_retro,"Mercury is retrograde. Back up your files, double-check your texts and do not message your ex."
-mercury_retro,"Mercury is going backwards, so your emails, your plans and your dignity might too."
-mercury_retro,Mercury retrograde. Even Lilly docked it points for that. Read everything twice.
-reception,"Two planets are crashing at each other's places. Somebody up there is cooperating, for fuck's sake."
-reception,Mutual reception: two planets swapped house keys. Lilly loved that shit.
+trigger,persona,text
+verdict_good,Snarky,"Holy shit, the planets actually like you today. Go do something before they change their minds."
+verdict_good,Snarky,The whole damn solar system is giving you a thumbs up. Try not to trip over it.
+verdict_good,Snarky,Even Saturn isn't being a dick right now. Go nuts.
+verdict_good,Snarky,Good vibes from Mercury to Saturn. Put some trousers on and get out there.
+verdict_good,Snarky,Lilly would have charged extra for a chart this good.
+verdict_good,Snarky,"Seven planets walk into a bar, and every one of them buys you a drink."
+verdict_good,Snarky,Green lights all the way up. Floor it.
+verdict_good,Snarky,"The cosmos is in a suspiciously good mood. Don't ask questions, just go."
+verdict_good,Snarky,This chart kicks ass. Lilly would have framed it.
+verdict_good,Snarky,Today the heavens are rooting for you. It's weird for everyone involved.
+verdict_mixed,Snarky,"Meh. The sky can't make up its damn mind, so neither can I."
+verdict_mixed,Snarky,"Half good, half crap. Like most Tuesdays."
+verdict_mixed,Snarky,The planets are arguing among themselves. Grab popcorn and keep your head down.
+verdict_mixed,Snarky,"A cosmic shrug. Go ahead, but don't bet the house."
+verdict_mixed,Snarky,"Some planets are cheering, some are heckling. Classic."
+verdict_mixed,Snarky,"Not great, not terrible: the sky's version of lukewarm coffee."
+verdict_mixed,Snarky,"Mixed signals from the heavens. Story of your life, huh?"
+verdict_mixed,Snarky,"The universe says 'maybe', which is universe for 'figure it out yourself, dumbass'."
+verdict_mixed,Snarky,The sky is sitting on the fence and its arse is getting sore.
+verdict_bad,Snarky,The sky is a dumpster fire today. Go back to bed.
+verdict_bad,Snarky,Nope. The planets took one look at your plans and pissed themselves laughing.
+verdict_bad,Snarky,"Today's forecast: cloudy, with a strong chance of bullshit."
+verdict_bad,Snarky,Lilly would have taken one look at this chart and poured himself a stiff drink.
+verdict_bad,Snarky,Big plans? The planets say hold my beer.
+verdict_bad,Snarky,Batten down the hatches. The heavens are being total assholes.
+verdict_bad,Snarky,Put the big decisions down and back away slowly.
+verdict_bad,Snarky,This is a sweatpants-and-snacks kind of sky.
+verdict_bad,Snarky,"If the sky were a restaurant, this would be one star and food poisoning."
+moon_void,Snarky,"The Moon is void of course, wandering around like she forgot why she walked into the room."
+moon_void,Snarky,Void Moon: anything you begin now goes absolutely fucking nowhere. Great time for a nap.
+moon_void,Snarky,The Moon isn't talking to anyone. Take the hint.
+moon_void,Snarky,"Void Moon. Do your chores, eat a sandwich, launch nothing."
+moon_void,Snarky,The Moon has left the group chat. Plans made now get left on read.
+moon_void,Snarky,Moon void of course: the cosmic equivalent of a phone with no signal.
+not_radical,Snarky,This chart is so off that Lilly wouldn't even read it. Who the hell am I to argue?
+not_radical,Snarky,The sky failed its own entry exam. Take this reading with a shovel of salt.
+not_radical,Snarky,The planet of the hour and your planet have nothing in common. This reading is basically a drunk guess.
+not_radical,Snarky,Lilly's first test says this chart is bollocks. Proceed for entertainment only.
+not_radical,Snarky,"The hour and the horizon disagree, so this whole chart is on probation."
+not_radical,Snarky,"Unreadable chart, according to the man himself. Enjoy the jokes anyway."
+saturn_asc,Snarky,"Saturn is rising, the miserable old git. Everything takes longer today."
+saturn_asc,Snarky,"Saturn is on the horizon with his clipboard. Expect paperwork, queues and delays."
+saturn_asc,Snarky,Saturn rising: the universe has put you on hold. Your call is important to it. Allegedly.
+saturn_asc,Snarky,Saturn just climbed over the horizon to slow-walk your whole damn day.
+saturn_asc,Snarky,"With Saturn rising, even your microwave will feel slow."
+saturn_asc,Snarky,Saturn's up. Lower your expectations and pack a lunch.
+cazimi,Snarky,"A planet is sitting dead centre in the Sun and loving it. Cazimi, baby."
+cazimi,Snarky,"Somebody up there is cazimi: right in the heart of the Sun, strong as hell."
+cazimi,Snarky,One planet is basking in the Sun's core like it owns the place. It kind of does.
+cazimi,Snarky,Cazimi alert: a planet got front-row seats inside the Sun and came out a superhero.
+cazimi,Snarky,"A planet just pulled off the cosmic equivalent of a perfect parallel park, right in the Sun's heart."
+cazimi,Snarky,Dead-centre in the Sun and somehow not toast. Respect.
+asc_ophiuchus,Snarky,"Ophiuchus is rising. Your horoscope app never mentioned it, did it? Lilly didn't either. Total chaos."
+asc_ophiuchus,Snarky,The thirteenth constellation is rising and nobody knows what the hell to do with it.
+asc_ophiuchus,Snarky,Ophiuchus on the horizon: the snake-handler has entered the chat and broken the rules.
+asc_ophiuchus,Snarky,The sign that isn't a sign is rising. Lilly's rulebook just burst into flames.
+asc_ophiuchus,Snarky,"Ophiuchus is up, so the usual horoscope crowd is having a meltdown somewhere."
+asc_ophiuchus,Snarky,"Thirteenth-constellation energy: unofficial, unscheduled and very confusing."
+lord_asc_combust,Snarky,Your planet is getting burned to a crisp by the Sun. Keep your head down and wear sunscreen.
+lord_asc_combust,Snarky,"Your planet is lost in the Sun's glare. Today, you're the background extra in someone else's movie."
+lord_asc_combust,Snarky,Your planet flew too close to the Sun. Icarus called; he wants his storyline back.
+lord_asc_combust,Snarky,Combust: your planet is being outshone so hard it might as well be invisible.
+lord_asc_combust,Snarky,The Sun is hogging the spotlight and your planet is standing right behind it.
+lord_asc_combust,Snarky,Your planet is cooking in the Sun's glare. Stay in the shade and let others do the talking.
+moon_via_combusta,Snarky,"The Moon is on the Burnt Road, the sketchiest neighbourhood in the sky. Lock the doors."
+moon_via_combusta,Snarky,Via Combusta: the Moon is taking a shortcut through a bad part of town. Don't follow her.
+moon_via_combusta,Snarky,The Moon's driving the Burnt Road with the windows down. Lilly would've stayed home.
+moon_via_combusta,Snarky,Burnt Road Moon: the sky's version of a dodgy alley at closing time.
+moon_via_combusta,Snarky,"The Moon is crossing the scorched stretch. Nothing good was ever started there, says Lilly."
+moon_via_combusta,Snarky,Via Combusta today. Even the Moon looks like she regrets her route.
+reception,Snarky,"Two planets are crashing at each other's places. Somebody up there is cooperating, for fuck's sake."
+reception,Snarky,Mutual reception: two planets swapped house keys. Lilly loved that shit.
+reception,Snarky,"Two planets are housesitting for each other. Teamwork, finally."
+reception,Snarky,"Mutual reception: the planets are doing a favour swap, and you might benefit."
+reception,Snarky,Two planets are scratching each other's backs. Get in on it.
+reception,Snarky,Look at that: two planets actually getting along. Mark the calendar.
+full_moon,Snarky,"Full Moon. Everyone's a bit unhinged tonight, including the sky."
+full_moon,Snarky,The Moon is full and so is everybody's nonsense.
+full_moon,Snarky,"Full Moon: peak drama, peak light, peak weird texts."
+full_moon,Snarky,"Big bright Moon tonight. Werewolves, exes and bad ideas all come out."
+full_moon,Snarky,"The Moon is at full blast, so emotions are running hotter than a cheap toaster."
+full_moon,Snarky,"Full Moon. If someone's acting strange, blame her and move on."
+new_moon,Snarky,"New Moon: the sky's reset button. Start something, but quietly."
+new_moon,Snarky,"The Moon's gone dark. Fresh start, low visibility."
+new_moon,Snarky,"New Moon: blank page, no light, no excuses."
+new_moon,Snarky,"The Moon has her lights off. Plant seeds, not fireworks."
+new_moon,Snarky,New Moon. The universe just cleared its throat.
+new_moon,Snarky,The Moon's on a dark-mode day. Good time to begin something small.
+mercury_retro,Snarky,"Mercury is retrograde. Back up your files, double-check your texts and do not message your ex."
+mercury_retro,Snarky,"Mercury is going backwards, so your emails, your plans and your dignity might too."
+mercury_retro,Snarky,Mercury retrograde. Even Lilly docked it points for that. Read everything twice.
+mercury_retro,Snarky,Mercury's reversing down the motorway. Expect crossed wires and lost parcels.
+mercury_retro,Snarky,Mercury retrograde: the season of reply-all disasters.
+mercury_retro,Snarky,Mercury's moonwalking. Nobody asked for this.
+venus_retro,Snarky,Venus is retrograde. Your love life is buffering.
+venus_retro,Snarky,Venus going backwards: not the moment for a dramatic haircut or a new relationship.
+venus_retro,Snarky,Retrograde Venus. That ex is not a good idea. Neither is that impulse purchase.
+venus_retro,Snarky,"Venus has gone into reverse, so romance is running on spare parts."
+venus_retro,Snarky,Venus retrograde: the heart wants what it wanted six months ago.
+venus_retro,Snarky,Love's planet is going backwards. Keep your wallet and your heart zipped.
+mars_retro,Snarky,"Mars is retrograde, so fights reignite and gym plans quietly die."
+mars_retro,Snarky,Mars is going backwards. Pick your battles; preferably none.
+mars_retro,Snarky,"Retrograde Mars: all the anger, none of the follow-through."
+mars_retro,Snarky,Mars in reverse. That argument you won? It's back.
+mars_retro,Snarky,Mars retrograde: the cosmic equivalent of revving the engine in neutral.
+mars_retro,Snarky,Mars is backing up. Don't start anything you'd need muscle to finish.
+jupiter_retro,Snarky,Jupiter is retrograde. Luck is on back-order.
+jupiter_retro,Snarky,Jupiter going backwards: the big guy is reconsidering his generosity.
+jupiter_retro,Snarky,"Retrograde Jupiter. Good fortune is running late, like a delayed train."
+jupiter_retro,Snarky,"Jupiter in reverse: expansion plans are on pause, so count what you've already got."
+jupiter_retro,Snarky,Jupiter retrograde: the cosmic Santa is double-checking his list.
+jupiter_retro,Snarky,"Jupiter's backing up, so big promises come with small print today."
+saturn_retro,Snarky,Saturn is retrograde. Old homework is due again.
+saturn_retro,Snarky,Saturn going backwards: past responsibilities are knocking on the door.
+saturn_retro,Snarky,"Retrograde Saturn, the cosmic auditor, is re-checking your receipts."
+saturn_retro,Snarky,Saturn in reverse. Remember that thing you put off? It remembers you.
+saturn_retro,Snarky,Saturn retrograde: rules you ignored are coming back to collect.
+saturn_retro,Snarky,"Saturn's reversing slowly, the way he does everything."
+many_retro,Snarky,Half the solar system is going backwards. No wonder nothing works.
+many_retro,Snarky,"Retrograde pile-up. The sky is reversing out of a car park, badly."
+many_retro,Snarky,Three or more planets in reverse: it's a cosmic moonwalk convention.
+many_retro,Snarky,So many retrogrades the sky needs a reversing camera.
+many_retro,Snarky,Planets everywhere are backing up. Maybe don't move house today.
+many_retro,Snarky,"A retrograde traffic jam overhead. Patience, or hide."
+lord_strong,Snarky,Your planet is absolutely jacked today. Flex.
+lord_strong,Snarky,Your planet is strong as an ox and twice as stubborn. Use it.
+lord_strong,Snarky,Your stand-in planet is having the best day of its life.
+lord_strong,Snarky,Your planet scored like a show-off in Lilly's table. Act accordingly.
+lord_strong,Snarky,"Your planet is swole, dignified and ready. Are you?"
+lord_strong,Snarky,Your planet is in top form. Don't waste it scrolling.
+lord_weak,Snarky,Your planet is in rough shape today. Bring snacks and lower the bar.
+lord_weak,Snarky,Your planet is limping. Let someone else drive.
+lord_weak,Snarky,Your planet scored terribly on Lilly's table. Today is not your boss fight.
+lord_weak,Snarky,Your stand-in planet is having a bad hair century.
+lord_weak,Snarky,Your planet is running on fumes. Charge yourself up first.
+lord_weak,Snarky,"Your planet is weak as a wet paper bag. Plan, don't push."
+verdict_good,Friendly,"Oh, look at you! The sky is on your side today."
+verdict_good,Friendly,"What a lovely chart. Go and enjoy it, you deserve this one."
+verdict_good,Friendly,"The planets are being properly kind to you. Make the most of it, love."
+verdict_good,Friendly,"A bright, friendly sky. Bloody marvellous, honestly."
+verdict_good,Friendly,Lilly would have smiled at this one. So should you.
+verdict_good,Friendly,Everything's lining up nicely. Off you pop and do the thing.
+verdict_mixed,Friendly,"A bit of sun, a bit of cloud, as charts go. You'll be fine."
+verdict_mixed,Friendly,"Some planets are helping, some are dawdling. Take it easy."
+verdict_mixed,Friendly,"Not perfect, not bad. A cup-of-tea-and-think-it-over sort of sky."
+verdict_mixed,Friendly,"The sky's in two minds, so be kind to yourself and go steady."
+verdict_mixed,Friendly,Swings and roundabouts up there today. Pick your moments.
+verdict_mixed,Friendly,"A mixed bag, sweetheart, but nothing you can't handle."
+verdict_bad,Friendly,"Bit of a rough sky today. Blanket, biscuits, no big decisions."
+verdict_bad,Friendly,The planets are grumpy. Let them sulk and look after yourself.
+verdict_bad,Friendly,"Not the day for heroics, love. Small, gentle steps."
+verdict_bad,Friendly,A tricky chart. Nothing that a quiet day and an early night won't fix.
+verdict_bad,Friendly,The sky's having a moody one. Don't take it personally.
+verdict_bad,Friendly,Hard going up there. Save the big stuff for a kinder day.
+moon_void,Friendly,"The Moon's having a quiet little wander, so leave new beginnings for later."
+moon_void,Friendly,"Void Moon: perfect for tidying up, tucking in and not starting anything."
+moon_void,Friendly,The Moon isn't making any connections just now. Neither should your new plans.
+moon_void,Friendly,Moon on a break! Finish things off and enjoy the pause.
+moon_void,Friendly,The Moon's daydreaming. Do the same and launch nothing.
+moon_void,Friendly,"Void-of-course Moon: a lovely time for rest, a poor time for fresh starts."
+not_radical,Friendly,"This chart doesn't quite pass Lilly's first check, so hold the rest of it lightly."
+not_radical,Friendly,Lilly would've raised an eyebrow at this chart. Take it all with a smile.
+not_radical,Friendly,"The planet of the hour and yours don't get along, so the reading is a bit wobbly."
+not_radical,Friendly,"A chart that's not quite readable, by Lilly's lights. Enjoy it as a bit of fun."
+not_radical,Friendly,This one's a soft reading at best. Don't lean on it too hard.
+not_radical,Friendly,"Lilly's first test is shrugging, so let's not take today's reading too seriously."
+saturn_asc,Friendly,"Saturn's rising, so slow and steady wins today."
+saturn_asc,Friendly,Saturn on the horizon: lovely day for patience and lists.
+saturn_asc,Friendly,"With Saturn rising, give everything a little extra time."
+saturn_asc,Friendly,Saturn's up and asking you to take it gently.
+saturn_asc,Friendly,A Saturn-rising sort of day. Pack your patience.
+saturn_asc,Friendly,Saturn's climbing over the horizon. Good things will just take a bit longer.
+cazimi,Friendly,A planet is snuggled right in the heart of the Sun. Gorgeous.
+cazimi,Friendly,Cazimi! One planet is glowing at the Sun's very centre.
+cazimi,Friendly,"There's a planet tucked into the Sun's heart, strong and shining."
+cazimi,Friendly,A lucky planet has found the Sun's sweet spot today.
+cazimi,Friendly,"One planet is basking at the Sun's core, as cosy as you like."
+cazimi,Friendly,Cazimi today: a planet sitting pretty in the middle of the Sun.
+asc_ophiuchus,Friendly,"Ophiuchus is rising, the thirteenth constellation. Isn't that fun?"
+asc_ophiuchus,Friendly,"Hello, Ophiuchus! The constellation most apps forget is coming up now."
+asc_ophiuchus,Friendly,"The serpent-bearer is rising. Lilly never met him, so we're off the map."
+asc_ophiuchus,Friendly,Ophiuchus on the horizon: something a little out of the ordinary.
+asc_ophiuchus,Friendly,The thirteenth constellation is up. A rare and curious moment.
+asc_ophiuchus,Friendly,"Ophiuchus rising: unusual, intriguing, and not in Lilly's book."
+lord_asc_combust,Friendly,"Your planet is hiding in the Sun's glare, so let others shine today."
+lord_asc_combust,Friendly,Your planet's a bit overshadowed by the Sun. Take it easy and ask for help.
+lord_asc_combust,Friendly,Your planet is tucked behind the Sun's brightness. A good day to listen.
+lord_asc_combust,Friendly,Your planet's lost in the sunshine. Back yourself gently.
+lord_asc_combust,Friendly,The Sun's outshining your planet today. Be patient with yourself.
+lord_asc_combust,Friendly,"Your planet is a little sunburnt. Shade, water and no big moves."
+moon_via_combusta,Friendly,"The Moon's on the Burnt Road, a bumpy stretch. Go carefully."
+moon_via_combusta,Friendly,Via Combusta for the Moon: Lilly would say wait a little.
+moon_via_combusta,Friendly,"The Moon's crossing a tricky patch of sky, so hold off on big things."
+moon_via_combusta,Friendly,"Burnt Road Moon: lovely for reflection, less so for beginnings."
+moon_via_combusta,Friendly,The Moon is walking a rough road today. Keep plans small.
+moon_via_combusta,Friendly,The Moon's passing through the scorched part of the sky. Be gentle.
+reception,Friendly,Two planets are looking after each other's homes. Teamwork!
+reception,Friendly,Mutual reception: two planets helping each other out. Sweet.
+reception,Friendly,Two planets have swapped places like good neighbours.
+reception,Friendly,"A friendly exchange between two planets, a lovely sign of cooperation."
+reception,Friendly,Two planets are being kind to each other. Lilly liked that.
+reception,Friendly,Mutual reception: a little partnership in the sky.
+full_moon,Friendly,Full Moon tonight! Pop outside and say hello.
+full_moon,Friendly,"The Moon is full and glowing. Feelings may be big, so be kind."
+full_moon,Friendly,"Full Moon: a bright, emotional sort of night."
+full_moon,Friendly,"Lovely full Moon. Good for finishing, celebrating and letting go."
+full_moon,Friendly,The Moon is at her brightest. Enjoy the glow.
+full_moon,Friendly,Full Moon. Light a candle and take a deep breath.
+new_moon,Friendly,New Moon: a fresh little beginning. Make a wish.
+new_moon,Friendly,"The Moon is new, the sky is quiet. Plant a seed."
+new_moon,Friendly,New Moon: perfect for a gentle start.
+new_moon,Friendly,"A dark, cosy new Moon. Rest and dream a bit."
+new_moon,Friendly,"The Moon's starting over, and you can too."
+new_moon,Friendly,New Moon tonight. Small intentions grow.
+mercury_retro,Friendly,"Mercury's retrograde, so double-check messages and be patient with tech."
+mercury_retro,Friendly,"Mercury going backwards: lovely for revisiting, tricky for new contracts."
+mercury_retro,Friendly,Mercury retrograde. Read things twice and forgive the typos.
+mercury_retro,Friendly,"Mercury's reversing, so give conversations a bit more care."
+mercury_retro,Friendly,Retrograde Mercury: a good time to tidy up old to-do lists.
+mercury_retro,Friendly,Mercury's walking backwards. Keep calm and save your work.
+venus_retro,Friendly,"Venus is retrograde, so love likes to look back. Be gentle with the heart."
+venus_retro,Friendly,Venus going backwards: maybe not the day for a dramatic makeover.
+venus_retro,Friendly,"Retrograde Venus. Lovely for reconnecting, wobbly for new romances."
+venus_retro,Friendly,Venus is reversing. Treat yourself kindly and wait on big love moves.
+venus_retro,Friendly,Venus retrograde: a soft time for reflection on what you value.
+venus_retro,Friendly,Love's planet is looking backwards. Old friends might pop up.
+mars_retro,Friendly,"Mars is retrograde, so pick your battles very gently."
+mars_retro,Friendly,Mars going backwards: rest those muscles and cool that temper.
+mars_retro,Friendly,Retrograde Mars. Not the moment to charge ahead.
+mars_retro,Friendly,"Mars is reversing. Slow, steady effort beats a big push."
+mars_retro,Friendly,Mars retrograde: a good time to finish rather than fight.
+mars_retro,Friendly,Mars is taking it backwards. Breathe before you react.
+jupiter_retro,Friendly,"Jupiter is retrograde, so count the blessings you've already got."
+jupiter_retro,Friendly,"Jupiter going backwards: gratitude now, big leaps later."
+jupiter_retro,Friendly,Retrograde Jupiter. Good luck is just pausing to tie its shoes.
+jupiter_retro,Friendly,Jupiter's reversing. Lovely time to grow on the inside.
+jupiter_retro,Friendly,Jupiter retrograde: dream big but sign small.
+jupiter_retro,Friendly,Jupiter's having a think. So can you.
+saturn_retro,Friendly,"Saturn's retrograde, so it's a good time to revisit old responsibilities."
+saturn_retro,Friendly,Saturn going backwards: tidy up the loose ends.
+saturn_retro,Friendly,Retrograde Saturn. Gentle reminders about old duties.
+saturn_retro,Friendly,Saturn's reversing. Patience with past projects pays.
+saturn_retro,Friendly,Saturn retrograde: a quiet season for review.
+saturn_retro,Friendly,Saturn's taking a step back. Take one too.
+many_retro,Friendly,"Lots of planets are retrograde, so it's a reflective sort of day."
+many_retro,Friendly,"Several planets are going backwards. Review, rest, revisit."
+many_retro,Friendly,A retrograde crowd overhead: lovely for looking back.
+many_retro,Friendly,So many planets in reverse! Take your time with everything.
+many_retro,Friendly,"Retrograde season in full swing. Be patient, love."
+many_retro,Friendly,Planets galore going backwards. Slow down and enjoy it.
+lord_strong,Friendly,"Your planet is in wonderful shape today. Go on, shine."
+lord_strong,Friendly,Your planet is strong and happy. Believe in yourself.
+lord_strong,Friendly,Look at your planet go: top marks in Lilly's table!
+lord_strong,Friendly,Your planet's glowing with strength. Lovely day to lead.
+lord_strong,Friendly,Your planet is feeling marvellous. Ride the wave.
+lord_strong,Friendly,Your planet is doing brilliantly. So can you.
+lord_weak,Friendly,Your planet's feeling a bit poorly. Rest up and be kind to yourself.
+lord_weak,Friendly,"Your planet is low on energy, so gentle tasks only."
+lord_weak,Friendly,Your planet scored low in Lilly's table. Ask for a helping hand.
+lord_weak,Friendly,Your planet's a little under the weather. Take it slow.
+lord_weak,Friendly,Your planet's on the tired side. A nap might be the wisest plan.
+lord_weak,Friendly,"Your planet is having a wobbly day. Small steps, love."
+verdict_good,Doom-monger,The heavens grant a reprieve. Savour it; such mercies are counted.
+verdict_good,Doom-monger,"For once the sky withholds its wrath. Move, while it hesitates."
+verdict_good,Doom-monger,A rare alignment of favour. Even the void seems to approve.
+verdict_good,Doom-monger,The omens are fair. It is unsettling.
+verdict_good,Doom-monger,"The stars, against all custom, are kind today. Do not squander it."
+verdict_good,Doom-monger,A blessed hour in a cruel cosmos. Act before the curtain falls.
+verdict_mixed,Doom-monger,"The scales of fate hang level, trembling."
+verdict_mixed,Doom-monger,Light and shadow wrestle overhead. Neither has won.
+verdict_mixed,Doom-monger,"The omens contradict each other, as omens love to do."
+verdict_mixed,Doom-monger,Fate has not yet decided what to do with this day.
+verdict_mixed,Doom-monger,"Half the sky beckons, half the sky warns. Tread with care."
+verdict_mixed,Doom-monger,An uneasy truce among the planets. It may not hold.
+verdict_bad,Doom-monger,The sky darkens with portents. Postpone all that matters.
+verdict_bad,Doom-monger,Every omen points the same grim way. Stay within the walls.
+verdict_bad,Doom-monger,The heavens have turned their faces from this day.
+verdict_bad,Doom-monger,A chart of ill tidings. Even the constellations look away.
+verdict_bad,Doom-monger,The planets gather like crows on a wire. Wait.
+verdict_bad,Doom-monger,Dread hangs over this hour. Begin nothing you cherish.
+moon_void,Doom-monger,"The Moon drifts unbound, touching nothing. What begins now dissolves."
+moon_void,Doom-monger,"Void of course: the Moon walks alone, and plans made now are swallowed by the dark."
+moon_void,Doom-monger,The Moon has severed every thread. Begin nothing.
+moon_void,Doom-monger,An untethered Moon. Whatever is started in her silence fades to nothing.
+moon_void,Doom-monger,The Moon passes like a ghost through empty sky. Let this hour pass too.
+moon_void,Doom-monger,No aspect awaits the Moon. Ventures launched now sink without a sound.
+not_radical,Doom-monger,This chart is not fit to be read. Lilly himself would have closed the book.
+not_radical,Doom-monger,The hour and the horizon disagree. The reading speaks with a forked tongue.
+not_radical,Doom-monger,An unreadable sky. Its prophecies are hollow.
+not_radical,Doom-monger,Lilly's first test fails. All that follows may be illusion.
+not_radical,Doom-monger,The chart refuses to speak plainly. Trust it at your peril.
+not_radical,Doom-monger,A false figure: the heavens mumble and cannot be understood.
+saturn_asc,Doom-monger,"Saturn rises, the old reaper of time. All things slow beneath his gaze."
+saturn_asc,Doom-monger,The lord of delays ascends. What you hurry will crumble.
+saturn_asc,Doom-monger,"Saturn stands on the horizon, heavy as a tombstone."
+saturn_asc,Doom-monger,"Saturn climbs into the east, and time thickens like tar."
+saturn_asc,Doom-monger,"Under rising Saturn, every road grows long."
+saturn_asc,Doom-monger,The ancient malefic rises. Patience is your only shield.
+cazimi,Doom-monger,A planet has entered the burning heart of the Sun and emerged crowned.
+cazimi,Doom-monger,"Cazimi: in the very core of the fire, a planet is made mighty."
+cazimi,Doom-monger,One planet sits enthroned within the Sun. Its power is terrible and bright.
+cazimi,Doom-monger,"In the Sun's heart a planet blazes, untouched by the flames."
+cazimi,Doom-monger,A planet dwells in the Sun's innermost chamber. Behold its strength.
+cazimi,Doom-monger,"Cazimi, the fire's secret mercy: a planet strengthened where others burn."
+asc_ophiuchus,Doom-monger,"Ophiuchus rises, the serpent-bearer, a sign the old masters never named."
+asc_ophiuchus,Doom-monger,The thirteenth constellation ascends. Lilly's laws fall silent before it.
+asc_ophiuchus,Doom-monger,The serpent-holder climbs the sky. No rule written in 1647 can bind him.
+asc_ophiuchus,Doom-monger,A nameless sign takes the horizon. The old certainties tremble.
+asc_ophiuchus,Doom-monger,"Ophiuchus ascends, and the ancient tables have no answer."
+asc_ophiuchus,Doom-monger,"The forgotten constellation rises, and with it, uncertainty."
+lord_asc_combust,Doom-monger,"Your planet burns in the Sun's glare, its voice consumed by fire."
+lord_asc_combust,Doom-monger,Combust: your planet is swallowed by the blaze. Stand back.
+lord_asc_combust,Doom-monger,The Sun devours your planet's light. Do not step forward now.
+lord_asc_combust,Doom-monger,Your planet withers in the furnace of the Sun.
+lord_asc_combust,Doom-monger,"Too near the fire, your planet is scorched and silent."
+lord_asc_combust,Doom-monger,Your planet is lost in the Sun's inferno. Wait for it to return.
+moon_via_combusta,Doom-monger,"The Moon walks the Burnt Way, the road of ash and ill fortune."
+moon_via_combusta,Doom-monger,Via Combusta: the Moon crosses scorched ground. Turn back.
+moon_via_combusta,Doom-monger,The Moon passes through the fire-blackened stretch of sky. Nothing thrives here.
+moon_via_combusta,Doom-monger,"On the Burnt Road the Moon travels, and misfortune travels with her."
+moon_via_combusta,Doom-monger,The Moon treads the cursed span between the scales and the scorpion.
+moon_via_combusta,Doom-monger,"Smoke rises from the Moon's path. Lilly would not judge, and neither should you."
+reception,Doom-monger,Two planets exchange their thrones. An alliance is sealed in the dark.
+reception,Doom-monger,Mutual reception: two powers swear an oath to aid each other.
+reception,Doom-monger,Two planets shelter in each other's halls. Such pacts can turn a fate.
+reception,Doom-monger,An exchange of strongholds overhead: a covenant between planets.
+reception,Doom-monger,Two planets clasp hands across the sky. Their bond may carry you.
+reception,Doom-monger,A secret treaty among the planets. It favours those who act.
+full_moon,Doom-monger,"The Moon is full, swollen with light, and the night grows restless."
+full_moon,Doom-monger,"Full Moon: tides rise, tempers rise, and old things stir."
+full_moon,Doom-monger,"The full Moon stares down, pitiless and bright."
+full_moon,Doom-monger,"At the full, the Moon reveals what darkness hid."
+full_moon,Doom-monger,The Moon is at the height of her power. Nothing stays hidden tonight.
+full_moon,Doom-monger,Full Moon: the night is bright enough for mischief.
+new_moon,Doom-monger,"The Moon has gone dark. In the blackness, seeds are sown, or graves are dug."
+new_moon,Doom-monger,"New Moon: the sky is lightless, and beginnings are fragile."
+new_moon,Doom-monger,The Moon vanishes. What is begun now begins blind.
+new_moon,Doom-monger,"Darkness where the Moon should be: a threshold, cold and silent."
+new_moon,Doom-monger,New Moon: the sky holds its breath before rebirth.
+new_moon,Doom-monger,"The Moon is extinguished, and the cycle starts again in shadow."
+mercury_retro,Doom-monger,"Mercury turns back upon his path. Words twist, messages go astray."
+mercury_retro,Doom-monger,The messenger walks backwards. Trust no letter sent today.
+mercury_retro,Doom-monger,Mercury retrograde: tongues falter and machines rebel.
+mercury_retro,Doom-monger,"Mercury reverses, and confusion spreads like fog."
+mercury_retro,Doom-monger,The swift planet stalls and turns. Agreements made now unravel.
+mercury_retro,Doom-monger,Mercury retreats through the stars. Misunderstanding follows him.
+venus_retro,Doom-monger,Venus turns back. Old loves return like ghosts.
+venus_retro,Doom-monger,The planet of desire walks backwards. Hearts misjudge.
+venus_retro,Doom-monger,Venus retrograde: what you love may not love you back today.
+venus_retro,Doom-monger,"Venus reverses, and beauty sours to regret."
+venus_retro,Doom-monger,The morning star retreats. Make no vows.
+venus_retro,Doom-monger,Venus walks the old road again. Beware what you find there.
+mars_retro,Doom-monger,"Mars turns back, and old battles reawaken."
+mars_retro,Doom-monger,The war-planet retreats. Your strength drains away like water.
+mars_retro,Doom-monger,Mars retrograde: anger smoulders but cannot strike.
+mars_retro,Doom-monger,"Mars reverses. Spears rust, and courage hides."
+mars_retro,Doom-monger,The red planet walks backwards through the dark. Fight nothing.
+mars_retro,Doom-monger,"Mars in retreat: wounds reopen, victories slip away."
+jupiter_retro,Doom-monger,"Jupiter turns back, and fortune withdraws its hand."
+jupiter_retro,Doom-monger,"The great benefic retreats. Blessings delayed, not denied."
+jupiter_retro,Doom-monger,Jupiter retrograde: the king of planets reconsiders his gifts.
+jupiter_retro,Doom-monger,"Jupiter reverses, and luck holds its breath."
+jupiter_retro,Doom-monger,The giant walks backwards. Promised plenty waits behind a locked door.
+jupiter_retro,Doom-monger,"Jupiter in retreat: expect less, and be grateful."
+saturn_retro,Doom-monger,Saturn turns back to collect old debts.
+saturn_retro,Doom-monger,"The reaper retreats along his path, gathering what was left undone."
+saturn_retro,Doom-monger,Saturn retrograde: past burdens return to your shoulders.
+saturn_retro,Doom-monger,"Saturn reverses, and forgotten duties rise from their graves."
+saturn_retro,Doom-monger,The old malefic walks backwards. Unfinished business awaits.
+saturn_retro,Doom-monger,"Saturn retreats, and the past demands its due."
+many_retro,Doom-monger,Many planets walk backwards at once. The heavens are in retreat.
+many_retro,Doom-monger,A procession of retrogrades: the sky itself seems to be fleeing.
+many_retro,Doom-monger,"So many planets in reverse, as though time were unwinding."
+many_retro,Doom-monger,The cosmos marches backwards. Nothing moves as it should.
+many_retro,Doom-monger,Retrogrades multiply. The old order is unravelling.
+many_retro,Doom-monger,Planet after planet turns back. Something is being undone.
+lord_strong,Doom-monger,"Your planet is armoured in dignity, terrible and strong."
+lord_strong,Doom-monger,"Your planet stands mighty, a fortress in the sky."
+lord_strong,Doom-monger,Your planet's power swells. Use it before the tide turns.
+lord_strong,Doom-monger,Your planet is crowned and armed. This is its hour.
+lord_strong,Doom-monger,Your planet blazes with strength rarely seen.
+lord_strong,Doom-monger,Your planet is formidable today. Even the malefics keep their distance.
+lord_weak,Doom-monger,"Your planet is besieged, stripped of dignity, and failing."
+lord_weak,Doom-monger,Your planet falters in the dark. Do not lean on it.
+lord_weak,Doom-monger,Your planet lies wounded in Lilly's table.
+lord_weak,Doom-monger,Your planet is a candle in a gale. Shelter it.
+lord_weak,Doom-monger,"Your planet is cast down, debilitated and weak."
+lord_weak,Doom-monger,Your planet's strength has deserted it. Wait for better skies.
