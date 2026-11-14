@@ -76,7 +76,10 @@ with st.container(border=True):
                 f"(the person who begins), the lord of the {ll._ord(U['house'])} house (the matter), {U['natural']} and the Moon.")
     if getattr(sys.modules.get('school'), 'is_ptolemy', lambda: False)():
         st.info("You have chosen **Ptolemy's reading**. The Tetrabiblos has no rules for choosing a time to begin "
-                "something, so this page uses William Lilly's election rules in both readings.")
+                "something, so this page uses William Lilly's election rules in every reading.")
+    elif getattr(sys.modules.get('school'), 'is_dee', lambda: False)():
+        st.info("You have chosen **John Dee's reading**. Dee's angelic tables give no rules for choosing a time to "
+                "begin something, so this page uses William Lilly's election rules in every reading.")
     st.caption('Lilly wrote no separate book of elections. In his epistle he says that whoever has studied his book will be '
                '"able (ad libitum) to frame his owne Figure of Elections, let the quere be what it will". This page frames '
                'them from his rules: perfection of the significators (ch. XXI, pp.124-126), their strength (p.115), and his '

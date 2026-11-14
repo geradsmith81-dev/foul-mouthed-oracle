@@ -21,6 +21,7 @@ import device
 import school
 import ptolemy_layer as pt
 import ptolemy_forecast
+import dee_view
 import voice
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +42,13 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
     fc = forecast.build(R, rows, bands, ph)
     asc, mc = se.angles(t, lat, lon)
     return rows, bands, cusps, R, ph, fc, asc, mc, stars
+
+
+@st.cache_data(show_spinner=False, max_entries=16, ttl=3600)
+def run_dee(utc, lat, lon, elev, convention):
+    """The same moment read by John Dee's angelic tables (the Sidereal Enochian Chart). No houses (cusps None);
+    cusps_l = Lilly's Regiomontanus cusps, still used for the four undertakings (Lilly's election rules)."""
+    return dee_view.compute(utc, lat, lon, elev, convention)
 
 
 @st.cache_data(show_spinner=False, max_entries=16, ttl=3600)
@@ -71,6 +79,7 @@ st.markdown('<p class="lilly-subtitle" style="font-size:1.12rem; line-height:1.4
 PHONE = device.phone()
 FULL = device.full_view()          # Simple view: the chart, the sky and the forecast; Full view: also the tables
 PT = school.is_ptolemy()          # whose reading: Ptolemy (Tetrabiblos) or Lilly (Christian Astrology)
+DEE = school.is_dee()             # ... or John Dee (the Sidereal Enochian Chart's angelic tables)
 
 # Forecast rules -> the terms that explain them (the "i" buttons under the Forecast)
 RULE_TERMS = {'radical': ['radical'], 'not_radical': ['radical', 'hours'], 'asc_early': ['considerations', 'ascendant'],
@@ -83,6 +92,12 @@ RULE_TERMS = {'radical': ['radical'], 'not_radical': ['radical', 'hours'], 'asc_
               'moon_apply_malefic': ['applying', 'fortunes'], 'cazimi': ['cazimi'], 'reception': ['reception'],
               'fortune_angular': ['fortune', 'angles'], 'fortune_cadent': ['fortune', 'angles'],
               'ophiuchus_planet': ['sidereal'], 'polar': ['hours']}
+# the same for the Enochian rules (John Dee's reading)
+RULE_TERMS_DEE = {'day_planet_up': ['d_heptarchy'], 'day_planet_down': ['d_heptarchy'],
+                  'day_planet_offzodiac': ['d_heptarchy', 'd_zodiac_king'], 'day_place_concord': ['d_zodiac_king', 'd_part_earth'],
+                  'concentration': ['d_zodiac_king'], 'planet_offzodiac': ['d_zodiac_king'], 'planet_ophiuchus': ['d_zodiac_king', 'sidereal'],
+                  'rising_place_concord': ['d_zodiac_king', 'd_part_earth'], 'place_clear': ['d_part_earth', 'd_aethyr'],
+                  'place_approximate': ['d_part_earth'], 'place_none': ['d_part_earth'], 'no_sunrise': ['d_day_start']}
 # the same for Ptolemy's rules (Ptolemy mode)
 RULE_TERMS_PT = {'sect_light_authority': ['p_sect', 'p_places'], 'lights_masculine_angular': ['p_lights', 'p_gender'],
                  'light_benefic_attended': ['p_lights', 'p_benefic'], 'benefic_angular': ['p_benefic', 'p_places'],
@@ -106,7 +121,11 @@ def sky_card(rows, bands, local):
     leave = local + dt.timedelta(days=s['exit_days'])
     with st.container(border=True):
         st.markdown('**The sky at this moment**')
-        st.markdown(f"{s['symbol']} **{s['phase']}**, {s['lit']}% lit: the Moon is "
+        if school.is_dee():
+            st.markdown(f"{s['symbol']} **{s['phase']}**, {s['lit']}% lit: the Moon is "
+                        f"{'increasing' if s['waxing'] else 'decreasing'} in light.")
+        else:
+          st.markdown(f"{s['symbol']} **{s['phase']}**, {s['lit']}% lit: the Moon is "
                     f"{'increasing' if s['waxing'] else 'decreasing'} in light ({'+2' if s['waxing'] else '-2'} for her in "
                     + ("Ptolemy's testimonies, after III.13)." if school.is_ptolemy() else "Lilly's table)."))
         st.markdown('**Retrograde:** ' + (', '.join(s['retrograde']) if s['retrograde'] else 'no planet') + '.')
@@ -115,13 +134,16 @@ def sky_card(rows, bands, local):
                         f"{leave:%a %H:%M} local). " + ("Void of course is Lilly's term (a time when things begun go on "
                                                          "with difficulty); the Tetrabiblos does not use it."
                                                          if school.is_ptolemy() else
+                                                         "Void of course is Lilly's term (a time when things begun go on "
+                                                         "with difficulty); Dee's angelic tables do not use it."
+                                                         if school.is_dee() else
                                                          "Lilly: a time when things begun go on with difficulty."))
         else:
             p, asp, days = s['next']
             st.markdown(f"**The Moon's next contact:** {asp} with {p}, in {_span(days)}. She leaves {s['band']} in "
                         f"{_span(s['exit_days'])} ({leave:%a %H:%M} local).")
-        glossary.chips((['p_moon', 'p_retrograde'] if school.is_ptolemy() else ['moon_light', 'retrograde'])
-                       + ['void', 'aspects'], 'sky')
+        glossary.chips((['p_moon', 'p_retrograde'] if school.is_ptolemy() else [] if school.is_dee()
+                        else ['moon_light', 'retrograde']) + ['void'] + ([] if school.is_dee() else ['aspects']), 'sky')
 
 def set_now(tzkey):
     """Put the present moment (local clock time in tzkey) into the date and time boxes."""
@@ -169,17 +191,28 @@ with device.input_panel('Chart input: date, time and place'):
     else:
         tz = st.number_input('UTC offset of that clock (hours)', -12.0, 14.0, 0.0, 0.25)
     st.session_state['c_last_tz'] = tzname if (tzname and not override) else f'UTC{tz:+.2f}'   # for the Now button
-    st.subheader('Options (Ptolemy)' if PT else 'Options (Lilly)')
+    st.subheader('Options (John Dee)' if DEE else 'Options (Ptolemy)' if PT else 'Options (Lilly)')
+    if DEE:
+        dee_start = st.radio('Heptarchic day begins at', ['sunrise', 'midnight'], index=0, key='dee_day_start',
+                             format_func={'sunrise': 'Local sunrise', 'midnight': 'Local mean midnight'}.get,
+                             help='Dee was never told when the angelic day begins (Peterson, PDF p160, p260). Local '
+                                  'sunrise is this app\'s default, as in the Sidereal Enochian Chart.')
+        st.caption("Dee's angelic tables have no houses, dignity points or aspect orbs, so Lilly's options are not used "
+                   "in this reading (his own rules still apply to the four undertakings).")
+    else:
+        dee_start = 'sunrise'
     if PT:
         st.caption("Ptolemy gives no orbs for the aspects, so the medieval moieties are used (Lilly p.107). Lilly's "
                    'Sun-beams option is not used in Ptolemy mode (his own rule applies to the four undertakings).')
-    beams = 'As in Lilly\'s table (p.113, p.115)' if PT else st.radio('Sun-beams rule', ['As in Lilly\'s table (p.113, p.115)', 'As in Lilly\'s worked example (pp.178-180)'],
+    beams = 'As in Lilly\'s table (p.113, p.115)' if (PT or DEE) else st.radio('Sun-beams rule', ['As in Lilly\'s table (p.113, p.115)', 'As in Lilly\'s worked example (pp.178-180)'],
                      index=0, help='Lilly\'s table counts a planet within 17° of the Sun as "under the Sun-beams" (-4). '
                                    'In his own worked example he does not apply this, and counts only combustion (8°30\').')
-    orbs = st.radio('Orbs of the planets (p.107)', ['Lilly\'s own (Saturn 10, Jupiter 12 ...)', '"According to others" (Saturn 9, Jupiter 9 ...)'],
+    orbs = 'Lilly\'s own' if DEE else st.radio('Orbs of the planets (p.107)', ['Lilly\'s own (Saturn 10, Jupiter 12 ...)', '"According to others" (Saturn 9, Jupiter 9 ...)'],
                     index=0)
     st.caption('Valid dates 1850–2149 (JPL DE440s). Place data: GeoNames (CC BY 4.0); time zones: IANA tz database. '
-               + ('Text: Ptolemy, Tetrabiblos, tr. F. E. Robbins (Loeb, 1940; public domain in the US), via LacusCurtius.'
+               + ("Text: J. H. Peterson (ed.), John Dee's Five Books of Mystery; G. James, The Enochian Evocation of Dr John "
+                  'Dee (tables transcribed in the Sidereal Enochian Chart).' if DEE else
+                  'Text: Ptolemy, Tetrabiblos, tr. F. E. Robbins (Loeb, 1940; public domain in the US), via LacusCurtius.'
                   if PT else 'Text: W. Lilly, Christian Astrology (1647), Wellcome Library copy (public domain).'))
 
 beams_rule = 'table' if beams.startswith('As in Lilly\'s table') else 'example'
@@ -188,7 +221,9 @@ local = dt.datetime.combine(d, tm)
 utc_dt = local - dt.timedelta(hours=tz)
 utc = (utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour, utc_dt.minute, 0)
 with st.spinner(voice.loading('Computing the chart ...')):
-    if PT:
+    if DEE:
+        rows, bands, cusps, R, ph, fc, asc, mc, stars, cusps_l = run_dee(utc, lat, lon, elev, dee_start)
+    elif PT:
         rows, bands, cusps, R, ph, fc, asc, mc, stars, cusps_l = run_ptolemy(utc, lat, lon, elev, orb_col)
     else:
         rows, bands, cusps, R, ph, fc, asc, mc, stars = run(utc, lat, lon, elev, beams_rule, orb_col)
@@ -198,7 +233,8 @@ P = {p['planet']: p for p in R['planets']}
 # ---------------- header ----------------
 st.caption(f'{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f}) = {utc_dt:%Y-%m-%d %H:%M} UTC · '
            'positions: NASA JPL DE440s via Skyfield (IAU standards) · '
-           + ('places: whole constellations, from the one 5° above the Ascendant (after Tetrabiblos III.10) · '
+           + ('no houses (Dee\'s angelic tables use none) · ' if DEE else
+              'places: whole constellations, from the one 5° above the Ascendant (after Tetrabiblos III.10) · '
               if PT else 'houses: Regiomontanus, as Lilly · ')
            + 'signs: the real IAU constellations on the ecliptic (13, at their true widths)')
 
@@ -230,14 +266,18 @@ if not voice.polite():
 left, right = st.columns([1.15, 1])
 with left:
     fig = cw.draw_wheel(rows, bands, f'{place}, {local:%d %b %Y %H:%M}', asc, mc, cusps=cusps,
-                        scores={p['planet']: p['net'] for p in R['planets']}, aspects=R['aspects'],
+                        scores=None if DEE else {p['planet']: p['net'] for p in R['planets']},
+                        aspects=None if DEE else R['aspects'],
                         theme=theme.WHEEL_THEME_PHONE if PHONE else theme.WHEEL_THEME, compact=PHONE)
     st.pyplot(fig, width='stretch')
     if PHONE:
         st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME_PHONE)))
 
 with right:
-  if PT:
+  if DEE:
+    dee_view.right_column(R, utc_dt, lon, tz)
+    sky_card(rows, bands, local)
+  elif PT:
     _light = 'Sun' if R['sun_up'] else 'Moon'
     st.subheader(f"{'Diurnal' if R['sun_up'] else 'Nocturnal'} figure: the {_light} leads the sect")
     st.caption(f"Ptolemy reads the chart by its sect: by day the Sun, Jupiter and Saturn are of the sect, by night the "
@@ -245,14 +285,15 @@ with right:
                f"in the Tetrabiblos (this is the day of {ph['day_ruler']}, hour of {ph['hour_ruler']}, by Lilly's reckoning).")
   else:
     st.subheader(f"Day of {ph['day_ruler']}, hour of {ph['hour_ruler']}")
-  if not PT:
+  if not (PT or DEE):
     if ph['sunrise']:
         sr = ph['sunrise'] + dt.timedelta(hours=tz); ss = ph['sunset'] + dt.timedelta(hours=tz)
         st.caption(f"{ph['weekday']} planetary day, from local sunrise {sr:%H:%M} (sunset {ss:%H:%M}, local clock). "
                    f"This is hour {ph['hour_number']} of 24, in unequal hours. Lilly: the day's planet rules the first hour and the eighth.")
     else:
         st.caption('No sunrise or sunset here today (polar). Equal hours from local mean midnight are used.')
-  with right:
+  if not DEE:
+   with right:
     c1, c2, c3 = st.columns(3)
     a_ = R['asc']
     c1.metric('Rising', a_['constellation'], help=glossary.TERMS['p_horoscope' if PT else 'ascendant'][1])
@@ -305,9 +346,12 @@ with st.container(border=True):
                   help=f"{school.authors()} rules that count against this moment, with the page references."):
         plain_forecast.show_weaknesses(fc, place, local)
     fired = [x.get('id') for x in fc['strengths'] + fc['weaknesses']]
-    glossary.chips([g for rid in fired for g in (RULE_TERMS_PT if PT else RULE_TERMS).get(rid, [])], 'fc')
+    glossary.chips([g for rid in fired for g in (RULE_TERMS_DEE if DEE else RULE_TERMS_PT if PT else RULE_TERMS).get(rid, [])], 'fc')
     st.caption(fc['note'] if voice.polite() else
-               voice.filter_text("The strengths and weaknesses are Ptolemy's own testimonies (Tetrabiblos, tr. Robbins "
+               voice.filter_text("The summary restates Dee's angelic tables (Peterson; James). The strengths and "
+                                 "weaknesses are this app's own rules built on them, not Dee's: he never judged a "
+                                 "damn chart this way. " if DEE else
+                                 "The strengths and weaknesses are Ptolemy's own testimonies (Tetrabiblos, tr. Robbins "
                                  "1940), mainly III.10, III.13 and IV.2-IV.3, slapped onto the real IAU sky. He wrote "
                                  "no rules for questions, so the moment is read like a birth chart. Where the app had "
                                  "to bend a rule, the line says so. " if PT else
@@ -316,14 +360,20 @@ with st.container(border=True):
                                  "sky. Where the app had to bend a rule, the line says so. ")
                + voice.pick('disclaimer', seed='chart'))
     st.download_button('Download forecast (.txt)',
-                       (ptolemy_forecast if PT else forecast).as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
+                       (dee_view.efc if DEE else ptolemy_forecast if PT else forecast).as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
                                        + f"{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f})"),
                        file_name=f"forecast_{local:%Y%m%d_%H%M}.txt", mime='text/plain', icon=':material/download:')
 
 if not FULL:
-    st.caption(f"Simple view. Switch on **Full view** in the sidebar for {school.authors()} tables of points, the "
-               'planets in his words, the aspects and the sources.' + (' (On a phone, open the sidebar with the arrow at the top left.)'
+    st.caption(("Simple view. Switch on **Full view** in the sidebar for the planets in Dee's tables, the day's "
+                "ministers, the bodies and the sources." if DEE else
+                f"Simple view. Switch on **Full view** in the sidebar for {school.authors()} tables of points, the "
+                'planets in his words, the aspects and the sources.') + (' (On a phone, open the sidebar with the arrow at the top left.)'
                                                          if PHONE else ''))
+    st.stop()
+
+if DEE:
+    dee_view.full_sections(R, rows, cw.GLYPH)
     st.stop()
 
 if PT:

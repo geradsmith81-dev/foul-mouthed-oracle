@@ -84,9 +84,9 @@ the page it comes from.
 """)
 
 # ---------------------------------------------------------------- the sky
-st.subheader("Two readings: Lilly or Ptolemy")
+st.subheader("Whose reading: Lilly, Ptolemy or Dee")
 st.markdown(
-    "The sidebar switch **Whose reading?** chooses the author whose rules read the chart. **William Lilly** "
+    "The sidebar switch **Whose reading?** chooses whose rules read the chart: William Lilly, Ptolemy or John Dee. **William Lilly** "
     "(*Christian Astrology*, 1647) is the default. **Ptolemy** reads it with the *Tetrabiblos* (2nd century), quoted "
     "from F. E. Robbins's translation (Loeb, 1940), with book, chapter and Loeb page, linked to the text on "
     "LacusCurtius.\n\n"
@@ -113,6 +113,23 @@ st.markdown(
     "One departure is the app's own choice: Ptolemy counts the signs from the equinoxes (I.22), that is, the "
     "tropical zodiac. Here, as in Lilly's reading, the signs are the real constellations. Every adaptation is "
     "listed under **Sources and certainty** at the foot of the Chart page (Full view).")
+
+st.subheader("A third reading: John Dee")
+st.markdown(
+    "**John Dee** in the switch **Whose reading?** reads the moment with the angelic tables of the *Sidereal "
+    "Enochian Chart*: Dee's Heptarchia as edited by J. H. Peterson (*John Dee's Five Books of Mystery*) and the tables "
+    "of G. James (*The Enochian Evocation of Dr John Dee*).\n"
+    "- **The day.** Each day of the week is governed by a Heptarchic King and Prince, counted from local sunrise (Dee "
+    "was never told when the day begins; local mean midnight is an option).\n"
+    "- **The hour.** The day is cut into six parts, each served by ministering angels; Dee wrote each angel as one "
+    "letter, and James's names are shown beside them.\n"
+    "- **The sky.** Each body takes the zodiac King (Liber Scientiae) of the IAU constellation it actually stands in. "
+    "Ophiuchus and the constellations off the zodiac have none.\n"
+    "- **The place.** The place falls in one of Dee's 91 Parts of the Earth, found by distance to an approximate "
+    "centre (an app gazetteer, so treat it as a guide).\n\n"
+    "Dee's system has no houses, dignity points or aspects, so the wheel shows none. The summary restates the "
+    "tables; the strengths and weaknesses are the Enochian app's own interpretive rules, not Dee's. The Auspicious "
+    "dates page and the four undertakings keep Lilly's election rules in every reading.")
 
 st.subheader('Step 1 · The real sky')
 st.markdown("""

@@ -175,8 +175,8 @@ with st.container(border=True):
                'Part of Fortune of the two nativities; the same sign, trine or sextile make for friendship, square or '
                'opposition for discord, and harmony between one\'s Sun and the other\'s Moon is the strongest bond (counted double). '
                'Orb and points are app choices (data/natal_rules.csv).')
-    if getattr(sys.modules.get('school'), 'is_ptolemy', lambda: False)():
-        st.caption("This comparison is Ptolemy's own rule in both readings ([Tetrabiblos IV.7, Loeb p.413]"
+    if not getattr(sys.modules.get('school'), 'is_lilly', lambda: True)():
+        st.caption("This comparison is Ptolemy's own rule in every reading ([Tetrabiblos IV.7, Loeb p.413]"
                    "(https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Ptolemy/Tetrabiblos/4B*.html#p413)). "
                    "The times good for both use Lilly's election rules, because Ptolemy wrote none.")
 

@@ -116,6 +116,14 @@ except ModuleNotFoundError:
     voice = _PoliteVoice()
 
 
+def _dee():
+    """True when the chart is read by John Dee's angelic tables (the sidebar switch 'Whose reading?')."""
+    try:
+        return bool(school and school.is_dee())
+    except Exception:
+        return False
+
+
 def _pt():
     """True when the chart is read by Ptolemy's rules (the sidebar switch 'Whose reading?')."""
     try:
@@ -157,11 +165,13 @@ CAUTIONS = {'not_radical', 'asc_early', 'asc_late', 'asc_ophiuchus', 'moon_via_c
             'saturn_7', 'lord_7_afflicted', 'testimonies_equal'}
 def _is_caution(x):
     """One of Lilly's considerations before judgment (marked ⚠). Ptolemy has no such warnings about the chart itself."""
-    return (not _pt()) and x.get('id') in CAUTIONS
+    return not (_pt() or _dee()) and x.get('id') in CAUTIONS
 
 
 GLOSSARY_KEYS_PT = ['p_horoscope', 'p_ruler', 'p_sect', 'p_places', 'p_lights', 'p_benefic', 'p_fortune', 'p_moon',
                     'p_testimonies', 'hours', 'considerations', 'fortunes', 'aspects', 'applying']
+GLOSSARY_KEYS_DEE = ['d_heptarchy', 'd_ministers', 'd_day_start', 'd_part_earth', 'd_aethyr', 'd_zodiac_king',
+                     'hours', 'considerations', 'fortunes', 'aspects', 'applying']
 GLOSSARY_KEYS = ['ascendant', 'lord_asc', 'hours', 'radical', 'considerations', 'fortitudes', 'houses', 'angles',
                  'fortunes', 'aspects', 'applying', 'combust', 'cazimi', 'void', 'via_combusta', 'reception', 'fortune']
 
@@ -269,9 +279,44 @@ OVERVIEW_POLITE_PT = dict(
     caution=['', ''])
 
 
+OVERVIEW_POLITE_DEE = dict(
+    day=["In Dee's angelic week this is **{wd}**, governed by **King {king}** and **Prince {prince}**; their area, "
+         "in everyday words, is {realm}.",
+         "**{wd}** belongs to **King {king}** and his **Prince {prince}**, whose realm in everyday words is {realm}."],
+    tally=["The Forecast found **{s} encouraging sign{ss}** and **{w} caution{ws}** in this moment.",
+           "In all, **{s} sign{ss} in favour** and **{w} against**."],
+    good=[" On balance the picture is **encouraging**.", " Taken together, the signs are **favourable**."],
+    bad=[" On balance it **calls for care**: a time to prepare, wait or go gently rather than push.",
+         " Taken together, they **advise patience** rather than bold steps."],
+    mixed=[" On balance the picture is **mixed**.", " Taken together, the signs are **evenly balanced**."])
+
+
+def _overview_dee(fc, R):
+    """The overall picture in Dee's reading: the day's King and Prince, then the tally."""
+    import dee_view
+    T = OVERVIEW_POLITE_DEE if voice.polite() else \
+        (getattr(voice, 'OVERVIEW_DEE', {}).get(voice.persona()) or OVERVIEW_POLITE_DEE)
+    s_, s, w = R['summary'], fc['strengths'], fc['weaknesses']
+    realm = dee_view.CORR.loc[s_['weekday'], 'realm_plain']
+    texts = []
+    for v in (0, 1):
+        lines = [T['day'][v].format(wd=s_['weekday'], king=s_['day_king'], prince=s_['day_prince'], realm=realm)]
+        tally = T['tally'][v].format(s=len(s), w=len(w), ss='s' if len(s) != 1 else '', ws='s' if len(w) != 1 else '')
+        key = 'good' if len(s) > len(w) + 1 else 'bad' if len(w) > len(s) + 1 else 'mixed'
+        lines.append(tally + T[key][v])
+        texts.append('\n\n'.join(lines) if voice.polite() else voice.filter_text('\n\n'.join(lines)))
+    for t in texts:
+        if not voice.is_used(t):
+            voice.mark_used(t)
+            return t if voice.polite() else getattr(voice, 'vary', lambda x: x)(t)
+    return texts[0]
+
+
 def overview(fc, R):
     """The overall picture. Two wordings exist, so it can appear both in the Forecast box and in the plain-English
     window without repeating itself; the first not yet used on the page is chosen."""
+    if _dee() and R.get('school') == 'Dee':
+        return _overview_dee(fc, R)
     if _pt():
         T = OVERVIEW_POLITE_PT if voice.polite() else \
             (getattr(voice, 'OVERVIEW_PTOLEMY', {}).get(voice.persona()) or OVERVIEW_POLITE_PT)
@@ -326,7 +371,13 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     name = user_profile.get()['name']
     st.caption(f"{place} · {local:%A %d %B %Y, %H:%M} local time"
                + (f" · prepared for {name}" if name else ''))
-    if _pt():
+    if _dee():
+        st.markdown("The **Forecast** box reads this moment with John Dee's angelic tables: the King and Prince who "
+                    'govern the day, the ministering angels of this part of the day, the zodiac Kings of the '
+                    'constellations and the Part of the Earth for the place. Its strengths and weaknesses are this '
+                    "app's own rules built on Dee's tables. This window says the same things in everyday words; **Show "
+                    'the working** gives each rule as written.')
+    elif _pt():
         st.markdown('The **Forecast** box reads the chart of this moment with Ptolemy\'s testimonies from the '
                     '*Tetrabiblos*. Ptolemy wrote no rules for questions, so the moment is read the way he reads a birth '
                     'chart: its sect, the Sun and Moon, the planets on the angles, the ruler of the horoscope and the Lot '
@@ -340,6 +391,14 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
 
     st.markdown('#### In short')
     st.markdown(overview(fc, R))
+    if _dee() and R.get('school') == 'Dee':
+        import dee_view
+        tzi = tz_from_key(tzkey)
+        off = (tzi.utcoffset(local) if isinstance(tzi, dt.timezone) else local.replace(tzinfo=tzi).utcoffset())
+        tz_h = off.total_seconds() / 3600
+        for head, text in dee_view.plain_sections(R, local - dt.timedelta(hours=tz_h), lon, tz_h):
+            st.markdown(f'#### {head}')
+            st.markdown(_v(text) if not voice.polite() else text)
 
     st.markdown('#### What the Forecast is saying')
     c1, c2 = st.columns(2)
@@ -356,9 +415,9 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     st.markdown('The **Auspicious dates** page uses the same rules to look for good times to begin four kinds of '
                 'undertaking. Here each one is judged for this exact moment. The grade compares this moment with every '
                 'hour of the surrounding week, as the Auspicious dates page compares the times in its period.')
-    if _pt():
-        st.caption("These four judgements use Lilly's election rules and his houses, in both readings: the "
-                   "Tetrabiblos has no rules for choosing a time to begin something.")
+    if _pt() or _dee():
+        st.caption("These four judgements use Lilly's election rules and his houses, in every reading: neither the "
+                   "Tetrabiblos nor Dee's angelic tables give rules for choosing a time to begin something.")
     rules = el.load_rules()
     start = week_start(local.date())
     with st.spinner(voice.loading('Comparing this moment with the rest of the week ...')):
@@ -421,7 +480,8 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
                'For other weeks, other hours or finer time steps, use the Auspicious dates page. '
                'Grades are relative (an app rule): Best is the top tenth of the hours without a warning, Good the next quarter.')
 
-    left = getattr(glossary, 'unseen', lambda ks: ks)(GLOSSARY_KEYS_PT if _pt() else GLOSSARY_KEYS)
+    left = getattr(glossary, 'unseen', lambda ks: ks)(GLOSSARY_KEYS_DEE if _dee() else GLOSSARY_KEYS_PT if _pt()
+                                                      else GLOSSARY_KEYS)
     getattr(glossary, 'mark_seen', lambda ks: None)(left)
     with st.expander('Words used in the Forecast'):
         for gk in left:
@@ -429,7 +489,8 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
         if not left:
             st.caption('Every term is already explained in the ⓘ buttons on the page.')
 
-    st.info(('This is a reading in the terms of a 2nd-century book' if _pt() else 'This is a reading in the terms of a 1647 book')
+    st.info(("This is a reading in the terms of Dee's angelic tables (1582-1583)" if _dee() else
+             'This is a reading in the terms of a 2nd-century book' if _pt() else 'This is a reading in the terms of a 1647 book')
             + ', for study and reflection. Controlled studies have not '
             'found astrological charts to predict events, so please do not base important decisions on it.'
             if voice.polite() else voice.pick('disclaimer', seed='dialog'))
@@ -455,13 +516,15 @@ def working(fc):
     if fc['strengths']:
         parts.append('**Each of these counts as one encouraging sign:**\n' + '\n'.join(entry(x) for x in fc['strengths']))
     if fc['weaknesses']:
-        parts.append(('**Each of these counts as one caution:**\n' if _pt() else
+        parts.append(('**Each of these counts as one caution:**\n' if (_pt() or _dee()) else
                       "**Each of these counts as one caution** (⚠ marks one of Lilly's *considerations before "
                       "judgment* as well):\n") + '\n'.join(entry(x) for x in fc['weaknesses']))
     st.markdown('\n\n'.join(parts))
     st.caption('How the overall picture is decided (an app rule): **encouraging** when the encouraging signs outnumber '
                'the cautions by two or more, **calls for care** when the cautions outnumber them by two or more, '
-               'otherwise **mixed**. ' + ('The links open that chapter of Robbins\'s translation on LacusCurtius.' if _pt()
+               'otherwise **mixed**. ' + ("These rules are this app's own, built on Dee's tables, so they have no page "
+                                          'of Dee to link to.' if _dee() else
+                                          'The links open that chapter of Robbins\'s translation on LacusCurtius.' if _pt()
                                           else 'The page links open that page of the 1647 book on the Internet Archive.'))
 
 
@@ -531,7 +594,11 @@ def _rule_header(place, local):
 @st.dialog('Strengths', width='large')
 def show_strengths(fc, place, local):
     _rule_header(place, local)
-    if _pt():
+    if _dee():
+        st.markdown("The rules built on Dee's angelic tables that **favour** this moment. They are this app's own "
+                    "interpretive rules (Dee gave no such judgements); the tables behind them come from Peterson's and "
+                    "James's editions.")
+    elif _pt():
         st.markdown("Ptolemy's testimonies that **favour** this moment, each with its chapter of the *Tetrabiblos* "
                     "(tr. F. E. Robbins, 1940; the links open the text).")
     else:
@@ -540,14 +607,17 @@ def show_strengths(fc, place, local):
     if fc['strengths']:
         _rule_items(fc['strengths'])
     else:
-        st.info(f"None of the strengths in {'Ptolemy' if _pt() else 'Lilly'}'s rules apply at this moment.")
+        st.info(f"None of the strengths in {'the Enochian' if _dee() else 'Ptolemy' + chr(39) + 's' if _pt() else 'Lilly' + chr(39) + 's'} rules apply at this moment.")
     st.caption('For the same in plain English, close this window and press "What does this mean?".')
 
 
 @st.dialog('Weaknesses', width='large')
 def show_weaknesses(fc, place, local):
     _rule_header(place, local)
-    if _pt():
+    if _dee():
+        st.markdown("The rules built on Dee's angelic tables that **count against** this moment. They are this app's "
+                    "own interpretive rules (Dee gave no such judgements). Read them as cautions rather than verdicts.")
+    elif _pt():
         st.markdown("Ptolemy's testimonies that **count against** this moment, each with its chapter of the "
                     "*Tetrabiblos* (tr. F. E. Robbins, 1940; the links open the text). Read them as cautions rather "
                     "than verdicts.")
@@ -559,5 +629,5 @@ def show_weaknesses(fc, place, local):
     if fc['weaknesses']:
         _rule_items(fc['weaknesses'])
     else:
-        st.info(f"None of the weaknesses in {'Ptolemy' if _pt() else 'Lilly'}'s rules apply at this moment.")
+        st.info(f"None of the weaknesses in {'the Enochian' if _dee() else 'Ptolemy' + chr(39) + 's' if _pt() else 'Lilly' + chr(39) + 's'} rules apply at this moment.")
     st.caption('For the same in plain English, close this window and press "What does this mean?".')

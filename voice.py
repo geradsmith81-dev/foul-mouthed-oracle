@@ -254,9 +254,10 @@ _PT_FILTERED = {'disclaimer'}           # slots that speak of the whole reading 
 
 
 def _ptolemy():
+    """True in any reading other than Lilly's (Ptolemy or John Dee): no jokes about Lilly or his 1647 book."""
     try:
         import school
-        return school.is_ptolemy()
+        return not school.is_lilly()
     except Exception:
         return False
 
@@ -525,6 +526,42 @@ OVERVIEW = {
 
 # Loading messages, one set per personality (worded unlike any punchline)
 
+# The overall picture in John Dee's reading (plain_forecast._overview_dee), per personality.
+OVERVIEW_DEE = {
+    'Snarky': dict(
+        day=["It's **{wd}** in Dee's angel week, so **King {king}** and his sidekick **Prince {prince}** are running "
+             "the show. Their department, in plain words: {realm}.",
+             "**{wd}** belongs to **King {king}** and **Prince {prince}**. What they're in charge of, minus the 1580s "
+             "jargon: {realm}."],
+        tally=["The Forecast found **{s} good sign{ss}** and **{w} bit{ws} of bad news**.",
+               "Count: **{s} point{ss} in your favour**, **{w} against**."],
+        good=[" On balance: **pretty damn good**.", " Net result: **the angels are on your side**."],
+        bad=[" On balance: **a bit of a shitshow**. Prepare, wait or go easy; this is not the moment to push your luck.",
+             " Net result: **rough**. Keep your head down and don't force anything."],
+        mixed=[" On balance: **meh, mixed**.", " Net result: **a coin toss**."]),
+    'Friendly': dict(
+        day=["Today is **{wd}** in Dee's angelic week, looked after by **King {king}** and **Prince {prince}**. "
+             "Their area, in everyday words: {realm}.",
+             "**{wd}** is in the care of **King {king}** and his **Prince {prince}**; what they look after is {realm}."],
+        tally=["The Forecast found **{s} encouraging sign{ss}** and **{w} thing{ws} to watch**.",
+               "Tally: **{s} hopeful sign{ss}**, **{w} gentle warning{ws}**."],
+        good=[" Overall it's **really rather lovely**.", " All in all, **things look bright**."],
+        bad=[" Overall it **asks for care**: a time to rest, prepare or go gently.",
+             " All in all, **go easy on yourself** and save big moves for later."],
+        mixed=[" Overall it's **a mixed bag**.", " All in all, **a bit of both**."]),
+    'Doom-monger': dict(
+        day=["This is **{wd}**, the day of **King {king}** and **Prince {prince}**, by the angels Dee summoned in the "
+             "dark of 1582. Their dominion: {realm}.",
+             "**{wd}** falls to **King {king}** and **Prince {prince}**. They hold sway over {realm}, and they do not "
+             "share it."],
+        tally=["The angelic tally: **{s} sign{ss} of hope**, **{w} of warning**.",
+               "Dee's tables number **{s} in your favour** and **{w} against**."],
+        good=[" The balance tips, for now, **toward mercy**.", " On the whole, **the heavens hold back their worst**."],
+        bad=[" The balance tips **toward peril**: wait, prepare, and do not tempt the sky.",
+             " On the whole, **the omens counsel retreat**."],
+        mixed=[" The balance **hangs undecided**.", " On the whole, **fate has not yet chosen**."]),
+}
+
 # The overall picture in Ptolemy mode (plain_forecast.overview), per personality. Same slots as OVERVIEW.
 OVERVIEW_PTOLEMY = {
     'Snarky': dict(
@@ -726,7 +763,12 @@ def straight(fc):
     """'Say it straight' (an idea from CARROT Weather): the punchline's facts in one plain sentence."""
     s, w = len(fc['strengths']), len(fc['weaknesses'])
     word = {'good': 'encouraging', 'bad': 'one that calls for care', 'mixed': 'mixed'}[verdict(fc)]
-    return mark_used(f"Straight answer: {'Ptolemy' if _ptolemy() else 'Lilly'}'s rules give this moment {s} point{'s' if s != 1 else ''} for and "
+    try:
+        import school
+        who_ = {'Ptolemy': "Ptolemy's rules", 'Dee': "the rules built on Dee's tables"}.get(school.current(), "Lilly's rules")
+    except Exception:
+        who_ = "Lilly's rules"
+    return mark_used(f"Straight answer: {who_} give this moment {s} point{'s' if s != 1 else ''} for and "
                      f"{w} against, so the overall picture is {word}.")
 
 

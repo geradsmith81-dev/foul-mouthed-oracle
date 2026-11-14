@@ -151,6 +151,28 @@ TERMS = {
     'p_overcome': ('Overcoming',
                    'A planet in the square on the right-hand side of another (90 degrees before it in the zodiac) '
                    '"overcomes" it: a kindly planet so placed lifts it, a harsh one oppresses it.', ('III.13', 339)),
+    # ---- John Dee's reading (Sidereal Enochian Chart): the 'pages' slot holds a text reference
+    'd_heptarchy': ('Heptarchic King and Prince',
+                    'In Dee\'s Heptarchia each day of the week is governed by one angelic King and his Prince, "for the '
+                    'whole daye"; each King belongs to one of the seven planets.',
+                    "Peterson, John Dee's Five Books of Mystery, Book 4 (PDF p160); planets: James, App. A"),
+    'd_ministers': ('Ministering angels',
+                    'The day is split into six equal parts; in each part a set of angels serves under the King. Dee '
+                    'wrote each angel as a single letter ("The Letters onely ... are theyr names").',
+                    "Peterson, Five Books, PDF p157, p259-260; James's Table of the 42 Ministers"),
+    'd_day_start': ('When the angelic day begins',
+                    'Dee was never told. This app counts the day from local sunrise (or, as an option, local mean '
+                    'midnight).', "Peterson, Five Books, PDF p160 and p260 (an app decision)"),
+    'd_part_earth': ('Parts of the Earth',
+                     'Dee\'s 91 regions of the world as known in his day, each with a governing angel, an Aethyr, a '
+                     'number of ministers and a zodiac King. The app finds the nearest region to the place, by an '
+                     'approximate centre of its own.', "James, Book Four (the 91 Parts); centres: app gazetteer"),
+    'd_aethyr': ('Aethyr', 'One of the thirty "Aires" (heavens) to which Dee\'s Parts of the Earth belong.',
+                 "James, Book Four"),
+    'd_zodiac_king': ('Zodiac King (Liber Scientiae)',
+                      'Twelve angelic Kings, one for each sign, each with a tribe of Israel and a quarter of the '
+                      'world. A body takes the King of the IAU constellation it stands in; Ophiuchus and the '
+                      'constellations off the zodiac have none (an app rule).', "James, App. A; Book Four table"),
     'sidereal': ('Sidereal sky and the IAU constellations',
                  'This app places the planets against the real constellations as the International Astronomical Union '
                  'draws them: 13 on the ecliptic, of unequal widths, rather than twelve equal signs. Each is rescaled to '
@@ -194,7 +216,17 @@ def _ptolemy_mode():
         return False
 
 
+def _dee_mode():
+    try:
+        import school
+        return school.is_dee()
+    except Exception:
+        return False
+
+
 def item_term(k):
+    if _dee_mode():
+        return None
     if _ptolemy_mode():
         return _ITEM_PT.get(k) or ('p_places' if k.startswith('place_') else None)
     if k in _ITEM:
@@ -236,6 +268,8 @@ def cite_links(source):
     """'Lilly pp.121-123; p.112' -> the same text with each page linked to the scan. Ptolemy's references
     ('Tetrabiblos IV.3, Loeb p.377') link to the LacusCurtius text instead."""
     s = str(source or '')
+    if any(w in s for w in ('Peterson', 'James', "Dee's", 'Enochian')):   # Dee's sources: no scan to link to
+        return s
     if 'Loeb' in s or 'Tetrabiblos' in s:
         return re.sub(r'\b((?:IV|III|II|I)\.\d{1,2})(?:-(?:IV|III|II|I)\.\d{1,2})?(?:, Loeb pp?\.(\d{1,3})(?:-\d{1,3})?)?',
                       lambda m: f'[{m.group(0)}]({pt_url(m.group(1), m.group(2))})', s)
@@ -247,6 +281,8 @@ def explain_md(key):
     title, text, pages = TERMS[key]
     if isinstance(pages, tuple):                                          # a Ptolemy term: (chapter, Loeb page)
         cite = f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})'
+    elif isinstance(pages, str):                                          # a Dee term: a text reference
+        cite = pages
     else:
         cite = ('Lilly, ' + page_links(pages)) if pages else 'An app rule.'   # short, so it never repeats as a phrase
     return f'**{title}**  \n{text}  \n\n<small>{cite}</small>'
@@ -309,5 +345,5 @@ def full_list():
     """Every term, for the About page."""
     for k, (title, text, pages) in sorted(TERMS.items(), key=lambda kv: kv[1][0].lower()):
         cite = (f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})' if isinstance(pages, tuple)
-                else page_links(pages) if pages else 'app rule')
+                else pages if isinstance(pages, str) else page_links(pages) if pages else 'app rule')
         st.markdown(f'**{title}**: {text} <small>({cite})</small>', unsafe_allow_html=True)
