@@ -56,9 +56,10 @@ def full_view():
 def view_switch():
     """The sidebar switch for Simple / Full view. Call once per run, from app.py."""
     full_view()
-    st.sidebar.toggle("Full view (all of Lilly's tables)", key=VIEW,
+    st.sidebar.toggle("Full view (all the tables)", key=VIEW,
                       help="Off: Simple view - the chart, the sky at this moment and the forecast in plain words. "
-                           "On: also Lilly's tables of points, the planets in his words, the aspects and the sources.")
+                           "On: also the tables of points (Lilly's or Ptolemy's), the planets in the author's words, "
+                           "the aspects and the sources.")
 
 
 def input_panel(label, expanded=False):

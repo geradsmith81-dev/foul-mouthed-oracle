@@ -20,6 +20,10 @@ import lilly_layer as ll
 import theme
 import user_profile
 try:
+    import school
+except ModuleNotFoundError:          # an older app without the Lilly / Ptolemy switch
+    school = None
+try:
     import voice
 except ModuleNotFoundError:
     # The Sidereal Oracle has no rude voice (voice.py belongs to The Foul-Mouthed Oracle). This polite stand-in
@@ -112,6 +116,14 @@ except ModuleNotFoundError:
     voice = _PoliteVoice()
 
 
+def _pt():
+    """True when the chart is read by Ptolemy's rules (the sidebar switch 'Whose reading?')."""
+    try:
+        return bool(school and school.is_ptolemy())
+    except Exception:
+        return False
+
+
 def new_page():
     """Called by app.py at the start of every run: a fresh register of the wordings used on this page."""
     getattr(voice, 'new_page', lambda: None)()
@@ -143,6 +155,13 @@ WORKING_LABELS = ('Show the working', 'How it was scored', 'The sums behind it',
 # Lilly's "Considerations before Judgment" (pp.121-123): signs that the chart may not be safe to read at all.
 CAUTIONS = {'not_radical', 'asc_early', 'asc_late', 'asc_ophiuchus', 'moon_via_combusta', 'moon_late',
             'saturn_7', 'lord_7_afflicted', 'testimonies_equal'}
+def _is_caution(x):
+    """One of Lilly's considerations before judgment (marked ⚠). Ptolemy has no such warnings about the chart itself."""
+    return (not _pt()) and x.get('id') in CAUTIONS
+
+
+GLOSSARY_KEYS_PT = ['p_horoscope', 'p_ruler', 'p_sect', 'p_places', 'p_lights', 'p_benefic', 'p_fortune', 'p_moon',
+                    'p_testimonies', 'hours', 'considerations', 'fortunes', 'aspects', 'applying']
 GLOSSARY_KEYS = ['ascendant', 'lord_asc', 'hours', 'radical', 'considerations', 'fortitudes', 'houses', 'angles',
                  'fortunes', 'aspects', 'applying', 'combust', 'cazimi', 'void', 'via_combusta', 'reception', 'fortune']
 
@@ -231,12 +250,35 @@ OVERVIEW_POLITE = dict(
              "than about the outcome, which is why its other signs deserve less weight."])
 
 
+OVERVIEW_POLITE_PT = dict(
+    word=('strong', 'fairly strong', 'neither strong nor weak', 'fairly weak', 'weak'),
+    lord=["The rising degree is in **{con}**, and the planet with most claims on it is **{lord}**, the ruler that "
+          "stands for you. By Ptolemy's testimonies it is **{word}** (net {n:+d}), in place {place}.",
+          "**{lord}** rules the horoscope (the rising degree, in **{con}**), so it is the planet that stands for you. "
+          "Its testimonies come to {n:+d}, which makes it **{word}**; it is in place {place}."],
+    nolord=["**{con}** is rising. It is not one of Ptolemy's twelve signs, so no planet rules the horoscope and "
+            "several of his tests cannot be made.",
+            "With **{con}** on the horizon there is no sign in Ptolemy's scheme, and so no ruler for you; some of his "
+            "tests have to be left out."],
+    tally=["Ptolemy's testimonies give **{s} encouraging sign{ss}** and **{w} caution{ws}**.",
+           "In all, **{s} sign{ss} in favour** and **{w} against**."],
+    good=[" On balance the picture is **encouraging**.", " Taken together, the signs are **favourable**."],
+    bad=[" On balance it **calls for care**: a time to prepare, wait or go gently rather than push.",
+         " Taken together, they **advise patience** rather than bold steps."],
+    mixed=[" On balance the picture is **mixed**.", " Taken together, the signs are **evenly balanced**."],
+    caution=['', ''])
+
+
 def overview(fc, R):
     """The overall picture. Two wordings exist, so it can appear both in the Forecast box and in the plain-English
     window without repeating itself; the first not yet used on the page is chosen."""
-    T = OVERVIEW_POLITE if voice.polite() else voice.OVERVIEW[voice.persona()]
+    if _pt():
+        T = OVERVIEW_POLITE_PT if voice.polite() else \
+            (getattr(voice, 'OVERVIEW_PTOLEMY', {}).get(voice.persona()) or OVERVIEW_POLITE_PT)
+    else:
+        T = OVERVIEW_POLITE if voice.polite() else voice.OVERVIEW[voice.persona()]
     s, w = fc['strengths'], fc['weaknesses']
-    cautions = [x for x in w if x.get('id') in CAUTIONS]
+    cautions = [x for x in w if _is_caution(x)]
     lord = R['lord_of_asc']
     texts = []
     for v in (0, 1):
@@ -246,7 +288,7 @@ def overview(fc, R):
             n = P[lord]['net']
             i = 0 if n >= 5 else 1 if n > 0 else 2 if n == 0 else 3 if n > -5 else 4
             lines.append(T['lord'][v].format(con=R['asc']['constellation'], lord=lord, word=T['word'][i], n=n,
-                                             house=ll._ord(P[lord]['house'])))
+                                             house=ll._ord(P[lord]['house']), place=P[lord]['house']))
         else:
             lines.append(T['nolord'][v].format(con=R['asc']['constellation']))
         tally = T['tally'][v].format(s=len(s), w=len(w), ss='s' if len(s) != 1 else '', ws='s' if len(w) != 1 else '')
@@ -270,7 +312,7 @@ def _v(t):
 def _plain_list(xs, empty):
     if not xs:
         return f'_{empty}_'
-    return '\n'.join(f"- {'⚠ ' if x.get('id') in CAUTIONS else ''}{voice.item(x)}" for x in xs)
+    return '\n'.join(f"- {'⚠ ' if _is_caution(x) else ''}{voice.item(x)}" for x in xs)
 
 
 def _reasons(plain, kinds, n=2):
@@ -284,10 +326,17 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     name = user_profile.get()['name']
     st.caption(f"{place} · {local:%A %d %B %Y, %H:%M} local time"
                + (f" · prepared for {name}" if name else ''))
-    st.markdown('The **Forecast** box reads the chart of this moment the way William Lilly read a chart cast for a '
-                "question put to him. It looks for encouraging signs and cautions in his rules. This window says the "
-                'same things without the technical terms. Under each part, **Show the working** gives the rule, the '
-                'page of his book and how much it counted.')
+    if _pt():
+        st.markdown('The **Forecast** box reads the chart of this moment with Ptolemy\'s testimonies from the '
+                    '*Tetrabiblos*. Ptolemy wrote no rules for questions, so the moment is read the way he reads a birth '
+                    'chart: its sect, the Sun and Moon, the planets on the angles, the ruler of the horoscope and the Lot '
+                    'of Fortune. This window says the same things without the technical terms. Under each part, **Show '
+                    'the working** gives the rule, the chapter of his book and how the app applies it.')
+    else:
+        st.markdown('The **Forecast** box reads the chart of this moment the way William Lilly read a chart cast for a '
+                    "question put to him. It looks for encouraging signs and cautions in his rules. This window says the "
+                    'same things without the technical terms. Under each part, **Show the working** gives the rule, the '
+                    'page of his book and how much it counted.')
 
     st.markdown('#### In short')
     st.markdown(overview(fc, R))
@@ -307,6 +356,9 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
     st.markdown('The **Auspicious dates** page uses the same rules to look for good times to begin four kinds of '
                 'undertaking. Here each one is judged for this exact moment. The grade compares this moment with every '
                 'hour of the surrounding week, as the Auspicious dates page compares the times in its period.')
+    if _pt():
+        st.caption("These four judgements use Lilly's election rules and his houses, in both readings: the "
+                   "Tetrabiblos has no rules for choosing a time to begin something.")
     rules = el.load_rules()
     start = week_start(local.date())
     with st.spinner(voice.loading('Comparing this moment with the rest of the week ...')):
@@ -369,7 +421,7 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
                'For other weeks, other hours or finer time steps, use the Auspicious dates page. '
                'Grades are relative (an app rule): Best is the top tenth of the hours without a warning, Good the next quarter.')
 
-    left = getattr(glossary, 'unseen', lambda ks: ks)(GLOSSARY_KEYS)
+    left = getattr(glossary, 'unseen', lambda ks: ks)(GLOSSARY_KEYS_PT if _pt() else GLOSSARY_KEYS)
     getattr(glossary, 'mark_seen', lambda ks: None)(left)
     with st.expander('Words used in the Forecast'):
         for gk in left:
@@ -377,7 +429,8 @@ def show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, bea
         if not left:
             st.caption('Every term is already explained in the ⓘ buttons on the page.')
 
-    st.info('This is a reading in the terms of a 1647 book, for study and reflection. Controlled studies have not '
+    st.info(('This is a reading in the terms of a 2nd-century book' if _pt() else 'This is a reading in the terms of a 1647 book')
+            + ', for study and reflection. Controlled studies have not '
             'found astrological charts to predict events, so please do not base important decisions on it.'
             if voice.polite() else voice.pick('disclaimer', seed='dialog'))
 
@@ -395,19 +448,21 @@ def working(fc):
         return
     def entry(x):
         b = _basis(x)
-        return (f"- {'⚠ ' if x.get('id') in CAUTIONS else ''}*{_once_sentences(x['text'])}* · "
+        return (f"- {'⚠ ' if _is_caution(x) else ''}*{_once_sentences(x['text'])}* · "
                 f"{_once(glossary.cite_links(x['source']), 'same source as above')}"
                 + (f" · app: {b}" if b and b.lower() != 'sourced' else ''))
     parts = []
     if fc['strengths']:
         parts.append('**Each of these counts as one encouraging sign:**\n' + '\n'.join(entry(x) for x in fc['strengths']))
     if fc['weaknesses']:
-        parts.append("**Each of these counts as one caution** (⚠ marks one of Lilly's *considerations before "
-                     "judgment* as well):\n" + '\n'.join(entry(x) for x in fc['weaknesses']))
+        parts.append(('**Each of these counts as one caution:**\n' if _pt() else
+                      "**Each of these counts as one caution** (⚠ marks one of Lilly's *considerations before "
+                      "judgment* as well):\n") + '\n'.join(entry(x) for x in fc['weaknesses']))
     st.markdown('\n\n'.join(parts))
     st.caption('How the overall picture is decided (an app rule): **encouraging** when the encouraging signs outnumber '
                'the cautions by two or more, **calls for care** when the cautions outnumber them by two or more, '
-               'otherwise **mixed**. The page links open that page of the 1647 book on the Internet Archive.')
+               'otherwise **mixed**. ' + ('The links open that chapter of Robbins\'s translation on LacusCurtius.' if _pt()
+                                          else 'The page links open that page of the 1647 book on the Internet Archive.'))
 
 
 def _once(text, short):
@@ -462,7 +517,7 @@ def working_undertaking(j, q, skip=(), name='Total'):
 def _rule_items(items):
     for x in items:
         with st.container(border=True):
-            st.markdown(('⚠ ' if x.get('id') in CAUTIONS else '') + x['text'])
+            st.markdown(('⚠ ' if _is_caution(x) else '') + x['text'])
             src = _once(glossary.cite_links(x['source']), 'Same source as above')
             b = _basis(x)
             st.caption(src + (f' · {b}' if b and b.lower() != 'sourced' else ''))
@@ -476,24 +531,33 @@ def _rule_header(place, local):
 @st.dialog('Strengths', width='large')
 def show_strengths(fc, place, local):
     _rule_header(place, local)
-    st.markdown("Lilly's rules that **favour** this moment, in his words, each with the page of *Christian Astrology* "
-                "(1647) it comes from (the links open the page).")
+    if _pt():
+        st.markdown("Ptolemy's testimonies that **favour** this moment, each with its chapter of the *Tetrabiblos* "
+                    "(tr. F. E. Robbins, 1940; the links open the text).")
+    else:
+        st.markdown("Lilly's rules that **favour** this moment, in his words, each with the page of *Christian Astrology* "
+                    "(1647) it comes from (the links open the page).")
     if fc['strengths']:
         _rule_items(fc['strengths'])
     else:
-        st.info('None of the strengths in Lilly\'s rules apply at this moment.')
+        st.info(f"None of the strengths in {'Ptolemy' if _pt() else 'Lilly'}'s rules apply at this moment.")
     st.caption('For the same in plain English, close this window and press "What does this mean?".')
 
 
 @st.dialog('Weaknesses', width='large')
 def show_weaknesses(fc, place, local):
     _rule_header(place, local)
-    st.markdown("Lilly's rules that **count against** this moment, in his words, each with the page of *Christian "
+    if _pt():
+        st.markdown("Ptolemy's testimonies that **count against** this moment, each with its chapter of the "
+                    "*Tetrabiblos* (tr. F. E. Robbins, 1940; the links open the text). Read them as cautions rather "
+                    "than verdicts.")
+    else:
+      st.markdown("Lilly's rules that **count against** this moment, in his words, each with the page of *Christian "
                 "Astrology* (1647) it comes from (the links open the page). Read them as cautions rather than verdicts. "
                 "Lines marked ⚠ are among his *considerations before judgment*: they warn that the chart may not be "
                 "safe to read at all, rather than that things will go badly.")
     if fc['weaknesses']:
         _rule_items(fc['weaknesses'])
     else:
-        st.info('None of the weaknesses in Lilly\'s rules apply at this moment.')
+        st.info(f"None of the weaknesses in {'Ptolemy' if _pt() else 'Lilly'}'s rules apply at this moment.")
     st.caption('For the same in plain English, close this window and press "What does this mean?".')

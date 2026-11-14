@@ -100,10 +100,70 @@ TERMS = {
     'besieged': ('Besieged', 'A planet between Saturn and Mars (-5).', [115]),
     'nodes': ("Dragon's Head and Tail", "The Moon's nodes: exactly with the North Node (Dragon's Head) +4; with the "
                                         "South Node (Dragon's Tail) -4.", [115]),
+    # ---- Ptolemy mode (Tetrabiblos, tr. F. E. Robbins, Loeb 1940): the 'pages' slot holds (chapter, Loeb page)
+    'p_sect': ('Sect (day and night)',
+               'Ptolemy divides the planets into a day party (the Sun, Jupiter, Saturn) and a night party (the Moon, '
+               'Venus, Mars); Mercury joins the side he rises on. A planet of the chart\'s own sect is the stronger, and '
+               'a harsh planet of the right sect is tempered.', ('I.7', 43)),
+    'p_places': ('Places of authority',
+                 'Ptolemy ranks the parts of the sky: the mid-heaven first, then the rising place, the Good Daemon (11th), '
+                 'the Occident (7th) and the House of the God (9th). Places that cannot "see" the rising place (2nd, 6th, '
+                 '8th, 12th) leave a planet powerless. In this app each place is a whole IAU constellation, starting from '
+                 'the one 5 degrees above the Ascendant.', ('III.10', 273)),
+    'p_lights': ('The luminaries',
+                 'The Sun and the Moon. Ptolemy reads rank and security from whether they are on the angles, in '
+                 '"masculine" signs, and attended by kindly or harsh planets.', ('IV.3', 377)),
+    'p_gender': ('Masculine and feminine signs',
+                 'Six signs are masculine and six feminine, alternating from Aries (masculine).', ('I.12', 69)),
+    'p_benefic': ('Beneficent and maleficent planets',
+                  'Jupiter, Venus and the Moon are beneficent (warm and moist); Saturn and Mars maleficent (too cold, too '
+                  'dry); the Sun and Mercury take on the nature of the planets they join.', ('I.5', 39)),
+    'p_ruler': ('Ruler of the horoscope',
+                'The planet with the most claims on the rising degree, by Ptolemy\'s five ways: its triangle, its house, '
+                'its exaltation, its terms, and an aspect to it. It stands for the person or moment the chart is cast for.',
+                ('III.2', 233)),
+    'p_honour': ('Honourable position',
+                 'Ptolemy describes each planet twice: "in an honourable position" and "in the opposite position". The '
+                 'app calls a planet honourable when its testimonies add up to more for than against.', ('III.13', 339)),
+    'p_fortune': ('Lot of Fortune',
+                  'A point as far from the rising degree as the Moon is from the Sun, by day and by night alike. Its '
+                  'lord shows material fortune: strong, it makes for riches.', ('IV.2', 373)),
+    'p_moon': ("The Moon's light",
+               'Ptolemy: a Moon increasing in light makes for natural gifts, renown and firmness; a waning Moon for '
+               'sluggishness and caution.', ('III.13', 361)),
+    'p_testimonies': ('Testimonies and net score',
+                      "Ptolemy's reasons for and against a planet's power: its familiarity with the sign, its place, "
+                      'its phase toward the Sun, its sect and its aspects. Ptolemy gives no numbers; the app weighs them '
+                      'on the same scale as Lilly\'s table, and the net score is the difference.', ('I.24', 115)),
+    'p_familiarity': ('Familiarity with the sign',
+                      'A planet is at home in a sign by its house, its exaltation, its triangle and its terms; in two '
+                      'or more of these it is in its "chariot". Without any, it rejoices in a sign of its own sect, but '
+                      'in one of the opposite sect "a great part of their proper power is paralysed".', ('I.23', 111)),
+    'p_face': ('Proper face',
+               'A planet keeps to the Sun or the Moon the angle its own house has to theirs: Venus 60 degrees from them, '
+               'Mars 90, Jupiter 120, Saturn 150, Mercury 30.', ('I.23', 111)),
+    'p_oriental': ('Oriental and adding to its motion',
+                   'A planet rising before the Sun (a morning star) and speeding up is at its most powerful; one setting '
+                   'after the Sun (an evening star) and slowing down is weaker.', ('I.24', 115)),
+    'p_rays': ("Under the Sun's rays",
+               'A planet close to the Sun is setting into his light and cannot be seen; Ptolemy says such "settings" make '
+               'it weak. The app counts within 15 degrees.', ('III.13', 335)),
+    'p_overcome': ('Overcoming',
+                   'A planet in the square on the right-hand side of another (90 degrees before it in the zodiac) '
+                   '"overcomes" it: a kindly planet so placed lifts it, a harsh one oppresses it.', ('III.13', 339)),
     'sidereal': ('Sidereal sky and the IAU constellations',
                  'This app places the planets against the real constellations as the International Astronomical Union '
                  'draws them: 13 on the ecliptic, of unequal widths, rather than twelve equal signs. Each is rescaled to '
-                 "30 degrees so that Lilly's tables can be applied (an app rule).", None),
+                 "30 degrees so that the old tables (Lilly's or Ptolemy's) can be applied (an app rule). Ptolemy "
+                 'himself counted the signs from the equinoxes (Tetrabiblos I.22); reading them as the real '
+                 "constellations is this app's choice.", None),
+    'p_horoscope': ('Horoscope (the rising degree)',
+                    'The degree of the zodiac rising on the eastern horizon at this moment. Ptolemy\'s first place is '
+                    'the twelfth part of the zodiac around it, starting 5 degrees above the horizon; here that place '
+                    'is the whole constellation holding that point.', ('III.10', 273)),
+    'p_retrograde': ('Retrograde (in Ptolemy)',
+                     'A planet seeming to move backwards against the stars. Ptolemy counts a planet slowing down or '
+                     'going back as "diminishing in speed", when "their energy is weaker".', ('I.24', 117)),
 }
 
 # names used inside the dignity tables -> the term that explains them
@@ -116,7 +176,27 @@ _ITEM = {'house': 'essential', 'exaltation': 'essential', 'triplicity': 'essenti
          'partile_conj_north_node': 'nodes', 'partile_conj_south_node': 'nodes'}
 
 
+_ITEM_PT = {'domicile': 'p_familiarity', 'exaltation': 'p_familiarity', 'triplicity': 'p_familiarity',
+            'co_triplicity': 'p_familiarity', 'term': 'p_familiarity', 'chariot': 'p_familiarity',
+            'rejoice': 'p_familiarity', 'alien': 'p_familiarity', 'no_familiarity': 'p_familiarity', 'no_sign': 'sidereal',
+            'depression': 'p_familiarity', 'proper_face': 'p_face', 'oriental': 'p_oriental', 'occidental': 'p_oriental',
+            'adding_motion': 'p_oriental', 'diminishing_motion': 'p_oriental', 'moon_waxing': 'p_moon',
+            'moon_waning': 'p_moon', 'under_rays': 'p_rays', 'in_sect': 'p_sect', 'out_of_sect': 'p_sect',
+            'benefic_aspect': 'p_benefic', 'malefic_aspect': 'p_benefic', 'overcome_benefic': 'p_overcome',
+            'overcome_malefic': 'p_overcome'}
+
+
+def _ptolemy_mode():
+    try:
+        import school
+        return school.is_ptolemy()
+    except Exception:
+        return False
+
+
 def item_term(k):
+    if _ptolemy_mode():
+        return _ITEM_PT.get(k) or ('p_places' if k.startswith('place_') else None)
     if k in _ITEM:
         return _ITEM[k]
     if k.startswith('house_'):
@@ -128,6 +208,22 @@ def item_term(k):
     return None
 
 
+# Ptolemy: LacusCurtius pages of Robbins's translation, with an anchor for each Loeb page
+PT_BASE = 'https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Ptolemy/Tetrabiblos/'
+_PT_FILE = {'I': [(3, '1A'), (24, '1B')], 'II': [(3, '2A'), (9, '2B'), (13, '2C')],
+            'III': [(9, '3A'), (10, '3B'), (12, '3C'), (14, '3D')], 'IV': [(4, '4A'), (7, '4B'), (10, '4C')]}
+
+
+def pt_url(chapter, page=None):
+    """'III.13', 341 -> the LacusCurtius page of that chapter, at Loeb page 341."""
+    try:
+        b, n = chapter.split('.')
+        f = next(f for last, f in _PT_FILE[b] if int(n) <= last)
+    except Exception:
+        return PT_BASE + 'home.html'
+    return f'{PT_BASE}{f}*.html' + (f'#p{int(page)}' if page else f'#{int(n)}')
+
+
 def scan_url(page):
     return f'{SCAN}/page/n{int(page) + 34}/mode/1up'
 
@@ -137,15 +233,22 @@ def page_links(pages):
 
 
 def cite_links(source):
-    """'Lilly pp.121-123; p.112' -> the same text with each page linked to the scan."""
+    """'Lilly pp.121-123; p.112' -> the same text with each page linked to the scan. Ptolemy's references
+    ('Tetrabiblos IV.3, Loeb p.377') link to the LacusCurtius text instead."""
     s = str(source or '')
+    if 'Loeb' in s or 'Tetrabiblos' in s:
+        return re.sub(r'\b((?:IV|III|II|I)\.\d{1,2})(?:-(?:IV|III|II|I)\.\d{1,2})?(?:, Loeb pp?\.(\d{1,3})(?:-\d{1,3})?)?',
+                      lambda m: f'[{m.group(0)}]({pt_url(m.group(1), m.group(2))})', s)
     return re.sub(r'\b(pp?\.)\s?(\d{1,3})((?:\s?[-–]\s?\d{1,3})?)',
                   lambda m: f'[{m.group(1)}{m.group(2)}{m.group(3)}]({scan_url(m.group(2))})', s)
 
 
 def explain_md(key):
     title, text, pages = TERMS[key]
-    cite = ('Lilly, ' + page_links(pages)) if pages else 'An app rule.'   # short, so it never repeats as a phrase
+    if isinstance(pages, tuple):                                          # a Ptolemy term: (chapter, Loeb page)
+        cite = f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})'
+    else:
+        cite = ('Lilly, ' + page_links(pages)) if pages else 'An app rule.'   # short, so it never repeats as a phrase
     return f'**{title}**  \n{text}  \n\n<small>{cite}</small>'
 
 
@@ -205,5 +308,6 @@ def chips(keys, where):
 def full_list():
     """Every term, for the About page."""
     for k, (title, text, pages) in sorted(TERMS.items(), key=lambda kv: kv[1][0].lower()):
-        cite = page_links(pages) if pages else 'app rule'
+        cite = (f'Ptolemy, Tetrabiblos [{pages[0]}]({pt_url(*pages)})' if isinstance(pages, tuple)
+                else page_links(pages) if pages else 'app rule')
         st.markdown(f'**{title}**: {text} <small>({cite})</small>', unsafe_allow_html=True)

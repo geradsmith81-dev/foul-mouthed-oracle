@@ -18,6 +18,9 @@ import glossary
 import plain_forecast
 import theme
 import device
+import school
+import ptolemy_layer as pt
+import ptolemy_forecast
 import voice
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -40,6 +43,24 @@ def run(utc, lat, lon, elev, beams_rule, orb_col):
     return rows, bands, cusps, R, ph, fc, asc, mc, stars
 
 
+@st.cache_data(show_spinner=False, max_entries=16, ttl=3600)
+def run_ptolemy(utc, lat, lon, elev, orb_col):
+    """The same chart read by Ptolemy's rules (Tetrabiblos). cusps = the constellation places; cusps_l = Lilly's
+    Regiomontanus cusps, still used for the four undertakings (Lilly's election rules, in both modes)."""
+    t, rows = se.chart(utc, lat, lon, elev)
+    bands = se.ecliptic_constellation_bands(t, step=0.05)
+    if bands[0][1] == bands[-1][1]:
+        bands = bands[1:]
+    cusps_l = se.regiomontanus_cusps(t, lat, lon)
+    stars = se.fixed_stars(t)
+    sun_up = [r for r in rows if r['body'] == 'Sun'][0]['alt'] > -0.8333
+    R = pt.interpret(rows, bands, stars, sun_up, orb_col=orb_col)
+    ph = se.planetary_hour(t, lat, lon, elev)
+    fc = ptolemy_forecast.build(R, rows, bands, ph)
+    asc, mc = se.angles(t, lat, lon)
+    return rows, bands, R['cusps'], R, ph, fc, asc, mc, stars, cusps_l
+
+
 user_profile.title('The Foul-Mouthed Oracle', 'The Foul-Mouthed Oracle')      # home page title (not personalised)
 # subtitle under the title: The Sidereal Oracle's wording, plus the attitude
 SUBTITLE = ('Horoscope readings of the real sky for any moment and place. Powerfully calculated using NASA JPL '
@@ -48,7 +69,8 @@ st.markdown('<p class="lilly-subtitle" style="font-size:1.12rem; line-height:1.4
             'color:#f7f1ea;">' + voice.say(SUBTITLE + " No sugar-coating, no bullshit, and it doesn't give a damn "
                                            'about your feelings.', SUBTITLE) + '</p>', unsafe_allow_html=True)
 PHONE = device.phone()
-FULL = device.full_view()          # Simple view: the chart, the sky and the forecast; Full view: also Lilly's tables
+FULL = device.full_view()          # Simple view: the chart, the sky and the forecast; Full view: also the tables
+PT = school.is_ptolemy()          # whose reading: Ptolemy (Tetrabiblos) or Lilly (Christian Astrology)
 
 # Forecast rules -> the terms that explain them (the "i" buttons under the Forecast)
 RULE_TERMS = {'radical': ['radical'], 'not_radical': ['radical', 'hours'], 'asc_early': ['considerations', 'ascendant'],
@@ -61,6 +83,15 @@ RULE_TERMS = {'radical': ['radical'], 'not_radical': ['radical', 'hours'], 'asc_
               'moon_apply_malefic': ['applying', 'fortunes'], 'cazimi': ['cazimi'], 'reception': ['reception'],
               'fortune_angular': ['fortune', 'angles'], 'fortune_cadent': ['fortune', 'angles'],
               'ophiuchus_planet': ['sidereal'], 'polar': ['hours']}
+# the same for Ptolemy's rules (Ptolemy mode)
+RULE_TERMS_PT = {'sect_light_authority': ['p_sect', 'p_places'], 'lights_masculine_angular': ['p_lights', 'p_gender'],
+                 'light_benefic_attended': ['p_lights', 'p_benefic'], 'benefic_angular': ['p_benefic', 'p_places'],
+                 'ruler_asc_strong': ['p_ruler', 'p_honour'], 'ruler_asc_weak': ['p_ruler', 'p_honour'],
+                 'ruler_asc_powerless': ['p_ruler', 'p_places'], 'fortune_ruler_strong': ['p_fortune'],
+                 'fortune_ruler_weak': ['p_fortune'], 'moon_waxing': ['p_moon'], 'moon_waning': ['p_moon'],
+                 'malefic_angular': ['p_benefic', 'p_sect'], 'light_afflicted': ['p_lights', 'p_benefic'],
+                 'lights_not_angular': ['p_lights', 'p_places'], 'evil_daemon': ['p_places'],
+                 'asc_ophiuchus': ['sidereal'], 'ophiuchus_planet': ['sidereal']}
 
 
 def _span(days):
@@ -77,16 +108,20 @@ def sky_card(rows, bands, local):
         st.markdown('**The sky at this moment**')
         st.markdown(f"{s['symbol']} **{s['phase']}**, {s['lit']}% lit: the Moon is "
                     f"{'increasing' if s['waxing'] else 'decreasing'} in light ({'+2' if s['waxing'] else '-2'} for her in "
-                    "Lilly's table).")
+                    + ("Ptolemy's testimonies, after III.13)." if school.is_ptolemy() else "Lilly's table)."))
         st.markdown('**Retrograde:** ' + (', '.join(s['retrograde']) if s['retrograde'] else 'no planet') + '.')
         if s['void']:
             st.markdown(f"**The Moon is void of course** until she leaves {s['band']} ({_span(s['exit_days'])}, "
-                        f"{leave:%a %H:%M} local). Lilly: a time when things begun go on with difficulty.")
+                        f"{leave:%a %H:%M} local). " + ("Void of course is Lilly's term (a time when things begun go on "
+                                                         "with difficulty); the Tetrabiblos does not use it."
+                                                         if school.is_ptolemy() else
+                                                         "Lilly: a time when things begun go on with difficulty."))
         else:
             p, asp, days = s['next']
             st.markdown(f"**The Moon's next contact:** {asp} with {p}, in {_span(days)}. She leaves {s['band']} in "
                         f"{_span(s['exit_days'])} ({leave:%a %H:%M} local).")
-        glossary.chips(['moon_light', 'retrograde', 'void', 'aspects'], 'sky')
+        glossary.chips((['p_moon', 'p_retrograde'] if school.is_ptolemy() else ['moon_light', 'retrograde'])
+                       + ['void', 'aspects'], 'sky')
 
 def set_now(tzkey):
     """Put the present moment (local clock time in tzkey) into the date and time boxes."""
@@ -134,14 +169,18 @@ with device.input_panel('Chart input: date, time and place'):
     else:
         tz = st.number_input('UTC offset of that clock (hours)', -12.0, 14.0, 0.0, 0.25)
     st.session_state['c_last_tz'] = tzname if (tzname and not override) else f'UTC{tz:+.2f}'   # for the Now button
-    st.subheader('Options (Lilly)')
-    beams = st.radio('Sun-beams rule', ['As in Lilly\'s table (p.113, p.115)', 'As in Lilly\'s worked example (pp.178-180)'],
+    st.subheader('Options (Ptolemy)' if PT else 'Options (Lilly)')
+    if PT:
+        st.caption("Ptolemy gives no orbs for the aspects, so the medieval moieties are used (Lilly p.107). Lilly's "
+                   'Sun-beams option is not used in Ptolemy mode (his own rule applies to the four undertakings).')
+    beams = 'As in Lilly\'s table (p.113, p.115)' if PT else st.radio('Sun-beams rule', ['As in Lilly\'s table (p.113, p.115)', 'As in Lilly\'s worked example (pp.178-180)'],
                      index=0, help='Lilly\'s table counts a planet within 17° of the Sun as "under the Sun-beams" (-4). '
                                    'In his own worked example he does not apply this, and counts only combustion (8°30\').')
     orbs = st.radio('Orbs of the planets (p.107)', ['Lilly\'s own (Saturn 10, Jupiter 12 ...)', '"According to others" (Saturn 9, Jupiter 9 ...)'],
                     index=0)
     st.caption('Valid dates 1850–2149 (JPL DE440s). Place data: GeoNames (CC BY 4.0); time zones: IANA tz database. '
-               'Text: W. Lilly, Christian Astrology (1647), Wellcome Library copy (public domain).')
+               + ('Text: Ptolemy, Tetrabiblos, tr. F. E. Robbins (Loeb, 1940; public domain in the US), via LacusCurtius.'
+                  if PT else 'Text: W. Lilly, Christian Astrology (1647), Wellcome Library copy (public domain).'))
 
 beams_rule = 'table' if beams.startswith('As in Lilly\'s table') else 'example'
 orb_col = 'orb_lilly' if orbs.startswith('Lilly') else 'orb_others'
@@ -149,13 +188,19 @@ local = dt.datetime.combine(d, tm)
 utc_dt = local - dt.timedelta(hours=tz)
 utc = (utc_dt.year, utc_dt.month, utc_dt.day, utc_dt.hour, utc_dt.minute, 0)
 with st.spinner(voice.loading('Computing the chart ...')):
-    rows, bands, cusps, R, ph, fc, asc, mc, stars = run(utc, lat, lon, elev, beams_rule, orb_col)
+    if PT:
+        rows, bands, cusps, R, ph, fc, asc, mc, stars, cusps_l = run_ptolemy(utc, lat, lon, elev, orb_col)
+    else:
+        rows, bands, cusps, R, ph, fc, asc, mc, stars = run(utc, lat, lon, elev, beams_rule, orb_col)
+        cusps_l = cusps
 P = {p['planet']: p for p in R['planets']}
 
 # ---------------- header ----------------
 st.caption(f'{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f}) = {utc_dt:%Y-%m-%d %H:%M} UTC · '
-           'positions: NASA JPL DE440s via Skyfield (IAU standards) · houses: Regiomontanus, as Lilly · '
-           'signs: the real IAU constellations on the ecliptic (13, at their true widths)')
+           'positions: NASA JPL DE440s via Skyfield (IAU standards) · '
+           + ('places: whole constellations, from the one 5° above the Ascendant (after Tetrabiblos III.10) · '
+              if PT else 'houses: Regiomontanus, as Lilly · ')
+           + 'signs: the real IAU constellations on the ecliptic (13, at their true widths)')
 
 
 # ---------------- the punchline: one big, rude line about this chart (not in Polite) ----------------
@@ -192,21 +237,46 @@ with left:
         st.caption('  \n'.join(cw.legend_lines(theme.WHEEL_THEME_PHONE)))
 
 with right:
+  if PT:
+    _light = 'Sun' if R['sun_up'] else 'Moon'
+    st.subheader(f"{'Diurnal' if R['sun_up'] else 'Nocturnal'} figure: the {_light} leads the sect")
+    st.caption(f"Ptolemy reads the chart by its sect: by day the Sun, Jupiter and Saturn are of the sect, by night the "
+               f"Moon, Venus and Mars; Mercury goes with the side he rises on (Tetrabiblos I.7). Planetary hours are not "
+               f"in the Tetrabiblos (this is the day of {ph['day_ruler']}, hour of {ph['hour_ruler']}, by Lilly's reckoning).")
+  else:
     st.subheader(f"Day of {ph['day_ruler']}, hour of {ph['hour_ruler']}")
+  if not PT:
     if ph['sunrise']:
         sr = ph['sunrise'] + dt.timedelta(hours=tz); ss = ph['sunset'] + dt.timedelta(hours=tz)
         st.caption(f"{ph['weekday']} planetary day, from local sunrise {sr:%H:%M} (sunset {ss:%H:%M}, local clock). "
                    f"This is hour {ph['hour_number']} of 24, in unequal hours. Lilly: the day's planet rules the first hour and the eighth.")
     else:
         st.caption('No sunrise or sunset here today (polar). Equal hours from local mean midnight are used.')
+  with right:
     c1, c2, c3 = st.columns(3)
     a_ = R['asc']
-    c1.metric('Rising', a_['constellation'], help=glossary.TERMS['ascendant'][1])
-    c2.metric('Lord of the Ascendant', R['lord_of_asc'] or '—', help=glossary.TERMS['lord_asc'][1])
+    c1.metric('Rising', a_['constellation'], help=glossary.TERMS['p_horoscope' if PT else 'ascendant'][1])
+    if PT:
+        c2.metric('Ruler of the horoscope', R['lord_of_asc'] or '—', help=glossary.TERMS['p_ruler'][1])
+    else:
+        c2.metric('Lord of the Ascendant', R['lord_of_asc'] or '—', help=glossary.TERMS['lord_asc'][1])
     if R['lord_of_asc']:
-        c3.metric(f"{R['lord_of_asc']}: net score", f"{P[R['lord_of_asc']]['net']:+d}", help=glossary.TERMS['fortitudes'][1])
+        c3.metric(f"{R['lord_of_asc']}: net score", f"{P[R['lord_of_asc']]['net']:+d}",
+                  help=glossary.TERMS['p_testimonies' if PT else 'fortitudes'][1])
     sky_card(rows, bands, local)
-    if FULL:
+    if FULL and PT:
+      st.write(f"**Figure:** {'diurnal (Sun above the horizon)' if R['sun_up'] else 'nocturnal (Sun below the horizon)'} · "
+               f"**Lot of Fortune:** {R['part_of_fortune']['constellation']}, place {R['part_of_fortune']['house']}"
+               + (f" · **Governor of the soul:** {R['soul_governor']}" if R.get('soul_governor') else ''))
+      st.markdown("**Strength of the planets** (Ptolemy's testimonies, [I.23-I.24](" + pt.text_url('I.24', 115)
+                  + ') and [III.10](' + pt.text_url('III.10', 273) + '); the points are app weights)')
+      sc = pd.DataFrame([dict(Planet=p['planet'], Constellation=p['constellation'] + (' R' if p['retrograde'] else ''),
+                              Place=p['house'], For=p['fortitudes'], Against=p['debilities'], Net=p['net'],
+                              Position=p['honour'].replace('in an ', '').replace('in a ', '')) for p in R['planets']])
+      device.table(sc, ['Planet', 'Place', 'Net', 'Position'])
+      found = [glossary.item_term(k) for p in R['planets'] for k, *_ in p['essential'] + p['accidental']]
+      glossary.chips(['p_testimonies', 'p_familiarity'] + [k for k in found if k] + ['p_places'], 'table')
+    elif FULL:
       st.write(f"**Figure:** {'diurnal (Sun above the horizon)' if R['sun_up'] else 'nocturnal (Sun below the horizon)'} · "
              f"**Part of Fortune:** {R['part_of_fortune']['constellation']}, {ORD(R['part_of_fortune']['house'])} house")
       st.markdown('**Strength of the planets** (Lilly\'s table, [p.115](' + glossary.scan_url(115) + '))')
@@ -226,66 +296,121 @@ with st.container(border=True):
                  width='stretch', help='A summary of the Forecast without the technical terms, with this moment judged '
                                        'for the four undertakings of the Auspicious dates page.'):
         tzkey = tzname if (tzname and not override) else f'UTC{tz:+.2f}'
-        plain_forecast.show(fc, R, rows, bands, cusps, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
+        plain_forecast.show(fc, R, rows, bands, cusps_l, stars, ph, lat, lon, elev, tzkey, local, beams_rule, place)
     b0, b1_ = st.columns(2)
     if b0.button(f"Strengths ({len(fc['strengths'])})", icon=':material/thumb_up:', key='strengths_btn', width='stretch',
-                 help="Lilly's rules that favour this moment, with his page references."):
+                 help=f"{school.authors()} rules that favour this moment, with the page references."):
         plain_forecast.show_strengths(fc, place, local)
     if b1_.button(f"Weaknesses ({len(fc['weaknesses'])})", icon=':material/report:', key='weaknesses_btn', width='stretch',
-                  help="Lilly's rules that count against this moment, with his page references."):
+                  help=f"{school.authors()} rules that count against this moment, with the page references."):
         plain_forecast.show_weaknesses(fc, place, local)
     fired = [x.get('id') for x in fc['strengths'] + fc['weaknesses']]
-    glossary.chips([g for rid in fired for g in RULE_TERMS.get(rid, [])], 'fc')
+    glossary.chips([g for rid in fired for g in (RULE_TERMS_PT if PT else RULE_TERMS).get(rid, [])], 'fc')
     st.caption(fc['note'] if voice.polite() else
-               voice.filter_text("The strengths and weaknesses are Lilly's own rules (Christian Astrology, 1647), "
+               voice.filter_text("The strengths and weaknesses are Ptolemy's own testimonies (Tetrabiblos, tr. Robbins "
+                                 "1940), mainly III.10, III.13 and IV.2-IV.3, slapped onto the real IAU sky. He wrote "
+                                 "no rules for questions, so the moment is read like a birth chart. Where the app had "
+                                 "to bend a rule, the line says so. " if PT else
+                                 "The strengths and weaknesses are Lilly's own rules (Christian Astrology, 1647), "
                                  "mainly his 'Considerations before Judgment' (pp.121-123), slapped onto the real IAU "
                                  "sky. Where the app had to bend a rule, the line says so. ")
                + voice.pick('disclaimer', seed='chart'))
     st.download_button('Download forecast (.txt)',
-                       forecast.as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
+                       (ptolemy_forecast if PT else forecast).as_text(fc, header=(f"Prepared for {user_profile.get()['name']}\n" if user_profile.get()['name'] else '')
                                        + f"{place} · {local:%d %b %Y %H:%M} local (UTC{tz:+.2f})"),
                        file_name=f"forecast_{local:%Y%m%d_%H%M}.txt", mime='text/plain', icon=':material/download:')
 
 if not FULL:
-    st.caption("Simple view. Switch on **Full view** in the sidebar for Lilly's tables of points, the planets in his "
-               'words, the aspects and the sources.' + (' (On a phone, open the sidebar with the arrow at the top left.)'
+    st.caption(f"Simple view. Switch on **Full view** in the sidebar for {school.authors()} tables of points, the "
+               'planets in his words, the aspects and the sources.' + (' (On a phone, open the sidebar with the arrow at the top left.)'
                                                          if PHONE else ''))
     st.stop()
 
-st.subheader("The planets in Lilly's words")
-st.caption('For each planet: fortitudes, debilities and the net score. Lilly: subtract the lesser number from the '
-           f'greater, "and so judge" ([p.181]({glossary.scan_url(181)})).')
-_house_told = {}                       # each house's meaning is quoted once on the page; later planets point back
-_house_seen = []                       # ... each time in a different wording
-_POINTERS = ['its meaning is quoted under {who} above', "Lilly's words for it are given under {who}", 'see {who} above for what it signifies', 'described already, with {who}', 'as told under {who}', 'its signification appears with {who}']
-for p in R['planets']:
-    head = (f"{cw.GLYPH[p['planet']]} {p['planet']} in {p['constellation']}"
-            + (f" (≈ {p['sign']} {p['sign_deg']:.0f}°)" if p['sign'] else '') + f" · {ORD(p['house'])} house · net {p['net']:+d}")
-    with st.expander(head):
-        text, cite = ll.reading(p['planet'], p['condition'])
-        label = 'when ill dignified' if p['condition'] == 'ill dignified' else 'when well dignified'
-        st.markdown(f"**Essentially {p['condition']}.** Lilly on {p['planet']} *{label}*:")
-        st.markdown(f"> {text}  \n> <small>{cite}</small>", unsafe_allow_html=True)
-        if p['true_constellation'] != p['constellation']:
-            st.caption(f"Its actual position (RA/Dec) lies in {p['true_constellation']}, off the ecliptic band. "
-                       f"It is read by the ecliptic band ({p['constellation']}).")
-        if p['house'] in _house_told:
-            _n = sum(1 for q_ in _house_seen if q_ == p['house'])
-            _house_seen.append(p['house'])
-            st.markdown(f"**The {ORD(p['house'])} house**: " + _POINTERS[_n % len(_POINTERS)].format(
-                who=_house_told[p['house']]) + '.')
-        else:
-            _house_told[p['house']] = p['planet']
-            st.markdown(f"**The {ORD(p['house'])} house** (Lilly): {ll.house_meaning(p['house'], 400)}")
-        e1, e2 = st.columns(2)
-        e1.markdown('**Essential dignities**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
-                                                                   for _, txt, v, tag in p['essential']), unsafe_allow_html=True)
-        e2.markdown('**Accidental**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
-                                                         for _, txt, v, tag in p['accidental']), unsafe_allow_html=True)
-        st.caption(f"{p['planet']}: fortitudes {p['fortitudes']} · debilities {p['debilities']} · net {p['net']:+d}")
-        glossary.chips([glossary.item_term(k) for k, *_ in p['essential'] + p['accidental']], 'pl_' + p['planet'])
+if PT:
+    st.subheader("The planets in Ptolemy's words")
+    st.caption('For each planet: the testimonies for and against it and the net score. Ptolemy ranks the testimonies '
+               '(I.23-I.24, III.10) but gives no numbers; the points are app weights. His pictures of each planet come '
+               'from III.13, where the planet rules the soul "in an honourable position" or "in the opposite position".')
+    _place_told = {}
+    _place_seen = []
+    _POINTERS_PT = ['what Ptolemy reads from it is quoted under {who} above', 'see {who} above for this place',
+                    'quoted already, with {who}', 'as told under {who}', 'its meaning appears with {who}',
+                    "Ptolemy's words for it are given under {who}"]
+    for p in R['planets']:
+        gov = ' · governor of the soul' if R.get('soul_governor') == p['planet'] else ''
+        head = (f"{cw.GLYPH[p['planet']]} {p['planet']} in {p['constellation']}"
+                + (f" (≈ {p['sign']} {p['sign_deg']:.0f}°)" if p['sign'] else '') + f" · place {p['house']} · net {p['net']:+d}{gov}")
+        with st.expander(head):
+            text, cite, label = pt.reading(p['planet'], p['condition'], R, rows)
+            ch, pg = cite.replace('Tetrabiblos ', '').split(', Loeb ')
+            link = f"[{cite}]({pt.text_url(ch, pg.split('.')[-1].split('-')[0])})"
+            pos = p['honour'][0].upper() + p['honour'][1:]
+            if p['net'] == 0 and p['planet'] != 'Moon':
+                pos += ' (a net of zero is read with the honourable text)'
+            if p['planet'] == 'Moon':
+                st.markdown(f"**{pos}** (net {p['net']:+d}). Ptolemy on the Moon, *{label}*:")
+            elif p['planet'] == 'Sun':
+                st.markdown(f"**{pos}.** Ptolemy on the Sun, which aids the planet that governs the soul, *{label}*:")
+            else:
+                st.markdown(f"**{pos}.** Ptolemy on {p['planet']} as ruler of the soul, *{label}*:")
+            st.markdown(f"> {text}  \n> <small>{link}</small>", unsafe_allow_html=True)
+            nat, ncite = pt.nature(p['planet'])
+            st.caption(f"Nature ({ncite.replace('Tetrabiblos ', '')}): {nat}")
+            if p['true_constellation'] != p['constellation']:
+                st.caption(f"Its actual position (RA/Dec) lies in {p['true_constellation']}, off the ecliptic band. "
+                           f"It is read by the ecliptic band ({p['constellation']}).")
+            if p['house'] in _place_told:
+                _n = sum(1 for q_ in _place_seen if q_ == p['house'])
+                _place_seen.append(p['house'])
+                st.markdown(f"**Place {p['house']}, {pt.place_name(p['house'])}**: " + _POINTERS_PT[_n % len(_POINTERS_PT)].format(
+                    who=_place_told[p['house']]) + '.')
+            else:
+                _place_told[p['house']] = p['planet']
+                st.markdown(f"**Place {p['house']}, {pt.place_name(p['house'])}** (Ptolemy): {pt.house_meaning(p['house'], 600)}  \n"
+                            f"<small>{pt.place_cite(p['house'])}</small>", unsafe_allow_html=True)
+            e1, e2 = st.columns(2)
+            e1.markdown('**Familiarity with the sign**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
+                                                                       for _, txt, v, tag in p['essential']), unsafe_allow_html=True)
+            e2.markdown('**Position and phase**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
+                                                                  for _, txt, v, tag in p['accidental']), unsafe_allow_html=True)
+            st.caption(f"{p['planet']}: for {p['fortitudes']} · against {p['debilities']} · net {p['net']:+d} · "
+                       f"sect: {p['sect']}")
+            glossary.chips([glossary.item_term(k) for k, *_ in p['essential'] + p['accidental']], 'pl_' + p['planet'])
+else:
+    st.subheader("The planets in Lilly's words")
+    st.caption('For each planet: fortitudes, debilities and the net score. Lilly: subtract the lesser number from the '
+               f'greater, "and so judge" ([p.181]({glossary.scan_url(181)})).')
+    _house_told = {}                       # each house's meaning is quoted once on the page; later planets point back
+    _house_seen = []                       # ... each time in a different wording
+    _POINTERS = ['its meaning is quoted under {who} above', "Lilly's words for it are given under {who}", 'see {who} above for what it signifies', 'described already, with {who}', 'as told under {who}', 'its signification appears with {who}']
+    for p in R['planets']:
+        head = (f"{cw.GLYPH[p['planet']]} {p['planet']} in {p['constellation']}"
+                + (f" (≈ {p['sign']} {p['sign_deg']:.0f}°)" if p['sign'] else '') + f" · {ORD(p['house'])} house · net {p['net']:+d}")
+        with st.expander(head):
+            text, cite = ll.reading(p['planet'], p['condition'])
+            label = 'when ill dignified' if p['condition'] == 'ill dignified' else 'when well dignified'
+            st.markdown(f"**Essentially {p['condition']}.** Lilly on {p['planet']} *{label}*:")
+            st.markdown(f"> {text}  \n> <small>{cite}</small>", unsafe_allow_html=True)
+            if p['true_constellation'] != p['constellation']:
+                st.caption(f"Its actual position (RA/Dec) lies in {p['true_constellation']}, off the ecliptic band. "
+                           f"It is read by the ecliptic band ({p['constellation']}).")
+            if p['house'] in _house_told:
+                _n = sum(1 for q_ in _house_seen if q_ == p['house'])
+                _house_seen.append(p['house'])
+                st.markdown(f"**The {ORD(p['house'])} house**: " + _POINTERS[_n % len(_POINTERS)].format(
+                    who=_house_told[p['house']]) + '.')
+            else:
+                _house_told[p['house']] = p['planet']
+                st.markdown(f"**The {ORD(p['house'])} house** (Lilly): {ll.house_meaning(p['house'], 400)}")
+            e1, e2 = st.columns(2)
+            e1.markdown('**Essential dignities**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
+                                                                       for _, txt, v, tag in p['essential']), unsafe_allow_html=True)
+            e2.markdown('**Accidental**  \n' + '  \n'.join(f"{'+' if v > 0 else ''}{v} {txt} <small>({tag})</small>"
+                                                             for _, txt, v, tag in p['accidental']), unsafe_allow_html=True)
+            st.caption(f"{p['planet']}: fortitudes {p['fortitudes']} · debilities {p['debilities']} · net {p['net']:+d}")
+            glossary.chips([glossary.item_term(k) for k, *_ in p['essential'] + p['accidental']], 'pl_' + p['planet'])
 
-st.subheader('Aspects (Lilly\'s moieties of orbs, p.107)')
+st.subheader('Aspects (moieties of orbs from Lilly p.107; Ptolemy gives none)' if PT else 'Aspects (Lilly\'s moieties of orbs, p.107)')
 if R['aspects']:
     device.table(pd.DataFrame([dict(Between=f"{a['a']} – {a['b']}", Aspect=a['aspect'], **{'From exact (°)': round(a['deviation'], 2)},
                                     **{'Allowed (°)': a['moiety']}, Partile=a['partile'],
@@ -300,16 +425,28 @@ tab = pd.DataFrame([dict(Body=r['body'], **{'Ecl. long. (°)': round(r['ecl_lon'
                          **{'IAU constellation (RA/Dec)': r['constellation']},
                          **{'Daily motion (°)': round(r['speed'], 3) if 'speed' in r else None},
                          **{'Above horizon': (r['alt'] > 0) if 'alt' in r else None},
-                         House=se.house_of(r['ecl_lon'], cusps)) for r in rows])
-device.table(tab, ['Body', 'Ecliptic band', 'House'])
+                         **{('Place' if PT else 'House'): (pt.place_of(r['ecl_lon'], cusps) if PT else se.house_of(r['ecl_lon'], cusps))})
+                    for r in rows])
+device.table(tab, ['Body', 'Ecliptic band', 'Place' if PT else 'House'])
 if PHONE:
     st.caption('Phone layout shows the main columns of each table. To see them all, switch off "Phone layout" '
                'in the sidebar (open it with the arrow at the top left).')
-glossary.chips(['sidereal', 'houses', 'five_degree'], 'bodies')
-st.caption('House cusps (Regiomontanus): ' + ' · '.join(f"{i + 1}: {c['constellation']}" for i, c in enumerate(R['cusp_signs'])))
+glossary.chips(['sidereal', 'p_places'] if PT else ['sidereal', 'houses', 'five_degree'], 'bodies')
+if PT:
+    st.caption('Places (whole constellations, Ophiuchus with Scorpius): '
+               + ' · '.join(f"{i + 1}: {c}" for i, c in enumerate(R['place_constellations'])))
+else:
+    st.caption('House cusps (Regiomontanus): ' + ' · '.join(f"{i + 1}: {c['constellation']}" for i, c in enumerate(R['cusp_signs'])))
 
 with st.expander('Sources and certainty'):
+  if PT:
+    st.markdown('Each statement carries a tag: **Ptolemy** (from the *Tetrabiblos*, tr. F. E. Robbins, Loeb 1940, with '
+                'book and chapter) or **app rule** (where the app had to adapt Ptolemy to the sidereal IAU sky). Note that '
+                'Ptolemy himself counts the signs from the equinoxes (I.22); reading them as the real constellations is '
+                'this app\'s choice. The tables are in the *data* folder as CSV files (ptolemy_*.csv).')
+    device.table(pd.read_csv(os.path.join(HERE, 'data', 'ptolemy_uncertainty.csv'), encoding='utf-8'))
+  else:
     st.markdown('Each statement carries a tag: **Lilly** (from *Christian Astrology*, 1647, with page) or **app rule** '
                 '(where the app had to adapt Lilly to the sidereal IAU sky). The tables are in the *data* folder as CSV files.')
     device.table(pd.read_csv(os.path.join(HERE, 'data', 'uncertainty_log.csv'), encoding='utf-8'))
-    device.table(pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8'))
+  device.table(pd.read_csv(os.path.join(HERE, 'data', 'sources.csv'), encoding='utf-8'))

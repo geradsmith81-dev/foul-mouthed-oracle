@@ -84,11 +84,18 @@ user_profile.sidebar_card()
 voice.switch()                 # 'How rude?': Full / Some / Clean / Polite
 device.switch()
 getattr(device, 'view_switch', lambda: None)()
+# 'Whose reading?': William Lilly (1647) or Ptolemy (Tetrabiblos)
+try:
+    import school
+    school.switch()
+    _BOOK = ('Ptolemy\'s Tetrabiblos, with chapter references' if school.is_ptolemy()
+             else 'Lilly\'s 1647 book, with page references')
+except ModuleNotFoundError:          # school.py not uploaded yet: Lilly only
+    _BOOK = 'Lilly\'s 1647 book, with page references'
 st.sidebar.caption(voice.say('Free · no ads, no trackers, no account, no bullshit · readings from fixed rules of '
-                             'Lilly\'s 1647 book, with page references · birth details never stored on a server. '
-                             'More on the About page.',
-                             'Free · no ads, trackers or account · readings from fixed rules of Lilly\'s 1647 book, with '
-                             'page references · birth details never stored on a server. More on the About page.'))
+                             + _BOOK + ' · birth details never stored on a server. More on the About page.',
+                             'Free · no ads, trackers or account · readings from fixed rules of ' + _BOOK
+                             + ' · birth details never stored on a server. More on the About page.'))
 # credit for the background image (required by its CC BY 4.0 licence), on every page
 st.sidebar.caption('Background: Hubble\'s image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. '
                    '[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)')

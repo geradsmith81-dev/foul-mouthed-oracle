@@ -1,5 +1,6 @@
 key,reference,url
 Lilly 1647,"William Lilly, Christian Astrology, modestly treated of in three books (London: T. Brudenell for J. Partridge & H. Blunden, 1647). Wellcome Library copy, Internet Archive item b30338724, Public Domain Mark.",https://archive.org/details/b30338724
+Ptolemy (Robbins 1940),"Ptolemy, Tetrabiblos, ed. and tr. F. E. Robbins (Loeb Classical Library 435; Cambridge, Mass.: Harvard University Press, 1940). Public domain in the United States (copyright not renewed); text as transcribed by Bill Thayer on LacusCurtius. Quoted in Ptolemy mode, with book, chapter and Loeb page.",https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Ptolemy/Tetrabiblos/home.html
 JPL DE440s,"Park, Folkner, Williams & Boggs (2021), The JPL Planetary and Lunar Ephemerides DE440 and DE441, AJ 161:105. Used via Skyfield (IAU 2000A/2006).",https://ssd.jpl.nasa.gov/planets/eph_export.html
 IAU boundaries,"Delporte (1930) constellation boundaries, via Skyfield load_constellation_map (Roman 1987 lookup).",https://www.iau.org/public/themes/constellations/
 Hipparcos,"ESA (1997), The Hipparcos Catalogue, positions and proper motions of Regulus (HIP 49669), Spica (HIP 65474), Algol (HIP 14576).",

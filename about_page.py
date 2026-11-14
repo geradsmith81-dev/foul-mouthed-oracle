@@ -84,6 +84,36 @@ the page it comes from.
 """)
 
 # ---------------------------------------------------------------- the sky
+st.subheader("Two readings: Lilly or Ptolemy")
+st.markdown(
+    "The sidebar switch **Whose reading?** chooses the author whose rules read the chart. **William Lilly** "
+    "(*Christian Astrology*, 1647) is the default. **Ptolemy** reads it with the *Tetrabiblos* (2nd century), quoted "
+    "from F. E. Robbins's translation (Loeb, 1940), with book, chapter and Loeb page, linked to the text on "
+    "LacusCurtius.\n\n"
+    "In Ptolemy's reading the Chart page changes:\n"
+    "- **Dignities.** Ptolemy's houses, triangles by sect (Venus and the Moon share the water triangle with "
+    "Mars), exaltations and depressions, and his own terms (I.17-I.21). He has no detriment and no decan faces; "
+    "he has the *proper face*, *chariots* and *rejoicing* by sect (I.23).\n"
+    "- **Strength.** Testimonies from Ptolemy's places of authority (III.10, I.24), being oriental and adding to "
+    "motion, the Sun's rays, sect, and the beneficent and maleficent planets. Ptolemy gives no numbers, so the "
+    "points are app weights on Lilly's scale.\n"
+    "- **Places.** Instead of Regiomontanus houses, each place is a whole IAU constellation. The first is the "
+    "one that holds the point 5° above the Ascendant (after III.10), and Ophiuchus shares Scorpius's place.\n"
+    "- **Ruler.** The ruler of the horoscope is found by Ptolemy's five ways (III.2-III.3), not just by the "
+    "rising sign.\n"
+    "- **The planets in his words.** Ptolemy's pictures of each planet as ruler of the soul, in an honourable "
+    "position or the opposite (III.13).\n"
+    "- **The Forecast.** Ptolemy wrote no rules for questions or for choosing times, so the moment is read as he "
+    "reads a nativity: the sect and its light, the luminaries on the angles (IV.3), the planets at the angles, the "
+    "ruler of the horoscope and the lord of the Lot of Fortune (IV.2).\n\n"
+    "What stays the same: the real sky, the IAU constellations as signs, the aspects (with the medieval orbs, "
+    "since Ptolemy gives none) and the Friends comparison, which is Ptolemy's own rule (IV.7) in both readings. "
+    "The **Auspicious dates** page and the four undertakings always use Lilly's election rules, because the "
+    "Tetrabiblos has none.\n\n"
+    "One departure is the app's own choice: Ptolemy counts the signs from the equinoxes (I.22), that is, the "
+    "tropical zodiac. Here, as in Lilly's reading, the signs are the real constellations. Every adaptation is "
+    "listed under **Sources and certainty** at the foot of the Chart page (Full view).")
+
 st.subheader('Step 1 · The real sky')
 st.markdown("""
 - **Where the planets are.** Positions come from NASA's Jet Propulsion Laboratory (the *DE440* planetary data, the same

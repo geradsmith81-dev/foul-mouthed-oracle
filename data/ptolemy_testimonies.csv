@@ -1,0 +1,27 @@
+kind,rule_id,wording,points,source,basis
+essential,domicile,In its own house,5,"I.17, Loeb pp.79-83",Ptolemy; points: app weight
+essential,exaltation,In its exaltation,4,"I.19, Loeb pp.89-91",Ptolemy (by sign; he gives no exaltation degree); points: app weight
+essential,triplicity,Ruler of its triangle,3,"I.18, Loeb pp.83-89",Ptolemy (the ruler of the sect: by day or by night); points: app weight
+essential,co_triplicity,Co-ruler of its triangle,2,"I.18, Loeb p.87","Ptolemy (water triangle: Venus by day, the Moon by night, with Mars); points: app weight"
+essential,term,In its own terms (rescaled degree),2,"I.21, Loeb p.107",Ptolemy's own terms + app rescaling to the constellation width
+essential,proper_face,In its proper face,1,"I.23, Loeb p.111",Ptolemy; orb of 3°: app rule
+essential,chariot,In its chariot or throne (two or more familiarities here),1,"I.23, Loeb pp.111-113",Ptolemy; points: app weight
+essential,rejoice,Rejoicing: the sign belongs to a planet of its own sect,1,"I.23, Loeb p.113",Ptolemy; points: app weight
+essential,alien,"In an alien region of the opposite sect: ""a great part of their proper power is paralysed""",-3,"I.23, Loeb p.113",Ptolemy; points: app weight
+essential,no_familiarity,Without familiarity in this sign,-1,"I.23, Loeb p.113","app rule (a sign of common sect, Mercury's)"
+essential,no_sign,"In Ophiuchus, which has no sign in Ptolemy",-1,app rule,app rule
+essential,depression,In its depression,-4,"I.19, Loeb pp.89-91",Ptolemy; points: app weight
+accidental,place,In a place (weights by I.24 and III.10),0,"I.24, Loeb p.117; III.10, Loeb p.273",points per place: see ptolemy_places.csv
+accidental,oriental,"Oriental (a morning star, rising before the Sun)",1,"I.24, Loeb pp.115-117",Ptolemy; points: app weight
+accidental,occidental,"Occidental (an evening star, setting after the Sun)",-1,"I.24, Loeb pp.115-117",Ptolemy; points: app weight
+accidental,adding_motion,Adding to its proper motion,1,"I.24, Loeb p.117","Ptolemy; ""adding"" = direct and faster than its mean motion: app rule"
+accidental,diminishing_motion,Diminishing in speed,-1,"I.24, Loeb p.117",Ptolemy; slower than mean or retrograde: app rule
+accidental,moon_waxing,Increasing in illumination,2,"III.13, Loeb p.361",Ptolemy; points: app weight
+accidental,moon_waning,Waning in illumination,-2,"III.13, Loeb p.361",Ptolemy; points: app weight
+accidental,under_rays,At its setting under the Sun's rays,-2,"III.13, Loeb pp.335-337","Ptolemy (""Precessions and settings make them easily changed, unstable, weak""); within 15° of the Sun: app rule"
+accidental,in_sect,Of the sect of the figure,1,"I.7, Loeb p.43; I.23, Loeb p.113",Ptolemy; points: app weight
+accidental,out_of_sect,Of the contrary sect,-1,"I.7, Loeb p.43; I.23, Loeb p.113",Ptolemy; points: app weight
+accidental,benefic_aspect,In familiarity with a beneficent planet,1,"III.13, Loeb p.339; I.5, Loeb p.39",Ptolemy; orbs: app rule (moieties)
+accidental,malefic_aspect,Afflicted by a maleficent planet,-1,"III.13, Loeb p.339; I.5, Loeb p.39",Ptolemy; orbs: app rule (moieties)
+accidental,overcome_benefic,Overcome by a beneficent planet (in dexter square),2,"IV.4, Loeb p.391; III.13, Loeb p.339",Ptolemy; orbs: app rule
+accidental,overcome_malefic,Overcome by a maleficent planet (in dexter square),-2,"III.13, Loeb pp.337-339",Ptolemy; orbs: app rule

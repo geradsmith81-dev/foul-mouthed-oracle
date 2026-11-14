@@ -249,12 +249,32 @@ def is_used(text):
     return _norm(text) in _register()
 
 
+_LILLY_RX = re.compile(r'Lilly|1647|considerations before', re.IGNORECASE)
+_PT_FILTERED = {'disclaimer'}           # slots that speak of the whole reading (not of Lilly's election rules)
+
+
+def _ptolemy():
+    try:
+        import school
+        return school.is_ptolemy()
+    except Exception:
+        return False
+
+
+def _not_lilly(opts):
+    """Ptolemy mode: leave out the wordings that name Lilly or his 1647 book, if any others are left."""
+    rest = [o for o in opts if not _LILLY_RX.search(o)]
+    return rest or opts
+
+
 def pick(slot, polite_options=None, seed=0, **fmt):
     """A wording for `slot` that is not yet used on this page, in the current voice and personality."""
     if polite():
         opts = list(polite_options or POLITE_PHRASES.get(slot, []))
     else:
         opts = list(PHRASES[slot][persona()])
+    if slot in _PT_FILTERED and _ptolemy():
+        opts = _not_lilly(opts)
     if not opts:
         return ''
     k = zlib.crc32(str(seed).encode()) % len(opts)
@@ -504,6 +524,62 @@ OVERVIEW = {
 }
 
 # Loading messages, one set per personality (worded unlike any punchline)
+
+# The overall picture in Ptolemy mode (plain_forecast.overview), per personality. Same slots as OVERVIEW.
+OVERVIEW_PTOLEMY = {
+    'Snarky': dict(
+        word=('strong as hell', 'pretty solid', 'neither here nor there', 'a bit wobbly', 'weak as piss'),
+        lord=["The rising degree is in **{con}**, and the planet with the most claims on it is **{lord}**, your "
+              "stand-in. Ptolemy's testimonies make it **{word}** (net {n:+d}), in place {place}.",
+              "**{lord}** rules the horoscope this time (rising degree in **{con}**). It scores {n:+d} on "
+              "Ptolemy's testimonies, so it's **{word}**, and it's sitting in place {place}."],
+        nolord=["**{con}** is rising. Ptolemy never counted it as a sign, so nothing rules the horoscope and half his "
+                "tests go straight out the damn window.",
+                "With **{con}** on the horizon there's no Ptolemy sign and so no ruler for you; a good chunk of his "
+                "tests simply can't be run."],
+        tally=["Ptolemy's testimonies: **{s} good sign{ss}** and **{w} bit{ws} of bad news**.",
+               "Count: **{s} point{ss} in your favour**, **{w} against**, per a guy from the 2nd century."],
+        good=[" On balance: **pretty damn good**.", " Net result: **the sky is on your side**."],
+        bad=[" On balance: **a bit of a shitshow**. Prepare, wait or go easy; this is not the moment to push your luck.",
+             " Net result: **rough**. Keep your head down and don't force anything."],
+        mixed=[" On balance: **meh, mixed**.", " Net result: **a coin toss**."],
+        caution=['', '']),
+    'Friendly': dict(
+        word=('wonderfully strong', 'doing nicely', 'perfectly balanced', 'a little tired', 'having a rough day'),
+        lord=["The rising degree is in **{con}**, which makes **{lord}** your planet for this moment. On Ptolemy's "
+              "testimonies it's **{word}** (net {n:+d}), in place {place}.",
+              "**{lord}** has the most claims on the rising degree (in **{con}**), so it's your planet. Ptolemy's "
+              "testimonies give it {n:+d}, so it's **{word}**, and you'll find it in place {place}."],
+        nolord=["**{con}** is rising, and it isn't one of Ptolemy's twelve signs, so there's no planet for you this "
+                "time and several of his tests can't be made.",
+                "Rising now is **{con}**, a constellation Ptolemy never made a sign, so no planet speaks for you and "
+                "some tests have to sit this one out."],
+        tally=["Ptolemy's testimonies give **{s} encouraging sign{ss}** and **{w} thing{ws} to watch**.",
+               "Tally: **{s} hopeful sign{ss}**, **{w} gentle warning{ws}**."],
+        good=[" Overall it's **really rather lovely**.", " All in all, **things look bright**."],
+        bad=[" Overall it **asks for care**: a time to rest, prepare or go gently.",
+             " All in all, **go easy on yourself** and save big moves for later."],
+        mixed=[" Overall it's **a mixed bag**.", " All in all, **a bit of both**."],
+        caution=['', '']),
+    'Doom-monger': dict(
+        word=('terrifyingly strong', 'holding firm', 'suspended between fates', 'faltering', 'all but extinguished'),
+        lord=["The rising degree lies in **{con}**, and **{lord}** lays the strongest claim to it: it answers for you. "
+              "By Ptolemy's testimonies it is **{word}** (net {n:+d}), in place {place}.",
+              "From the rising degree in **{con}**, **{lord}** takes the rule of your horoscope. Ptolemy's tally reads "
+              "{n:+d}: **{word}**, from place {place}."],
+        nolord=["**{con}** ascends, a constellation Ptolemy never named a sign. Nothing rules your horoscope, and his "
+                "surest tests fall silent.",
+                "The horizon brings **{con}**, outside Ptolemy's twelve: you stand unruled, and many of his tests "
+                "cannot be made."],
+        tally=["Ptolemy's testimonies number **{s} in your favour** and **{w} against**.",
+               "The ancient count: **{s} sign{ss} of hope**, **{w} of warning**."],
+        good=[" The balance tips, for now, **toward mercy**.", " On the whole, **the heavens hold back their worst**."],
+        bad=[" The balance tips **toward peril**: wait, prepare, and do not tempt the sky.",
+             " On the whole, **the omens counsel retreat**."],
+        mixed=[" The balance **hangs undecided**.", " On the whole, **fate has not yet chosen**."],
+        caution=['', '']),
+}
+
 LOADING_BY = {
     'Snarky': ['Shoving the planets into place ...', 'Asking the Moon what the hell she is doing ...',
                'Digging William Lilly out of 1647 ...', 'Untangling the damn constellations ...',
@@ -595,7 +671,11 @@ def candidates(fc, rows=None, R=None, who=None):
     """Every punchline that fits this chart for this personality: special conditions, then the overall verdict."""
     bank, who = _bank(), who or persona()
     special = [t for k in conditions(fc, rows, R) for t in bank.get((k, who), [])]
-    return special, bank.get(('verdict_' + verdict(fc), who), [])
+    general = bank.get(('verdict_' + verdict(fc), who), [])
+    if _ptolemy():                     # Ptolemy mode: no jokes about Lilly's verdicts
+        special = [t for t in special if not _LILLY_RX.search(t)]
+        general = _not_lilly(general)
+    return special, general
 
 
 def _order(fc, seed, rows, R, who):
@@ -646,7 +726,7 @@ def straight(fc):
     """'Say it straight' (an idea from CARROT Weather): the punchline's facts in one plain sentence."""
     s, w = len(fc['strengths']), len(fc['weaknesses'])
     word = {'good': 'encouraging', 'bad': 'one that calls for care', 'mixed': 'mixed'}[verdict(fc)]
-    return mark_used(f"Straight answer: Lilly's rules give this moment {s} point{'s' if s != 1 else ''} for and "
+    return mark_used(f"Straight answer: {'Ptolemy' if _ptolemy() else 'Lilly'}'s rules give this moment {s} point{'s' if s != 1 else ''} for and "
                      f"{w} against, so the overall picture is {word}.")
 
 
