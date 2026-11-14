@@ -11,6 +11,9 @@ Not affiliated with or endorsed by the makers of these apps.
 Weather). *Say it straight* swaps the punchline for a plain sentence. No wording appears twice on one page.
 Lilly's own words, page references and scores are never changed.
 
+- **Astrosophy Birth Chart** page: the birth chart on the 13 IAU zodiac constellations read through Steiner's
+  indications and the astrosophy of Vreede and Sucher, in its own polite wording, with every reading tagged with its
+  source (folder `astrosophy`, page `astrosophy_page.py`).
 - Run online on Streamlit Community Cloud: see `DEPLOY GUIDE.txt`.
 - The rude wording: column `crude` of `data/forecast_rules.csv` and `data/election_rules.csv`, and
   `data/punchlines.csv`.

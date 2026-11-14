@@ -31,11 +31,11 @@ A3. Upload the files.
     - On the new repository's page, click the link "uploading an existing
       file".
     - Open the folder "foul-mouthed-oracle" in File Explorer, press Ctrl+A to
-      select everything INSIDE it (29 items: the .py files and the folders
-      assets, data, ephem and .streamlit), and drag them into the browser.
+      select everything INSIDE it (31 items: the .py files and the folders
+      assets, astrosophy, data, ephem and .streamlit), and drag them into the browser.
     - Wait until every file is listed, then click "Commit changes".
-    - Check: the repository shows app.py, voice.py, the folders assets and
-      data, and README.md at the top level (not inside another folder).
+    - Check: the repository shows app.py, voice.py, the folders assets,
+      astrosophy and data, and README.md at the top level (not inside another folder).
 
 A4. Add the colour settings by hand (GitHub drops folders whose names start
     with a dot, such as .streamlit, when you drag them in).
