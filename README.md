@@ -6,6 +6,8 @@ William Lilly's *Christian Astrology* (London, 1647), then says what it means ru
 weather apps such as WTForecast, CARROT Weather and Dirty Weather; every line was written for this app.
 Not affiliated with or endorsed by the makers of these apps.
 
+**Whose reading?** (sidebar): William Lilly (1647), Ptolemy (*Tetrabiblos*, tr. F. E. Robbins, 1940) or John Dee
+(the angelic tables of the Sidereal Enochian Chart).
 **How rude?** (sidebar): Full, Some (masked), Clean (tame stand-ins) or Polite (the original Sidereal Oracle wording).
 **Who's talking?**: Friendly, Snarky or Doom-monger (personality, separate from the swearing, an idea from CARROT
 Weather). *Say it straight* swaps the punchline for a plain sentence. No wording appears twice on one page.
@@ -22,3 +24,8 @@ Lilly's own words, page references and scores are never changed.
   ticked (then in this browser only). Nothing about visitors is stored on the server.
 - Background: Hubble's image of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, CC BY 4.0.
 - Astrology has not been found to predict events in controlled studies. This app is for fun and reflection.
+
+## License
+
+The code is released under the [MIT License](LICENSE), copyright (c) 2026 Gerad Smith. The texts, data and images
+it uses keep their own terms: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
