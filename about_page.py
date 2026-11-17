@@ -131,6 +131,23 @@ st.markdown(
     "tables; the strengths and weaknesses are the Enochian app's own interpretive rules, not Dee's. The Auspicious "
     "dates page and the four undertakings keep Lilly's election rules in every reading.")
 
+st.subheader("Enochian script")
+st.markdown(
+    "The switch **Enochian script**, at the top of the sidebar, spells the screen in John Dee's Enochian letters, "
+    "after his table of 6 May 1583 (British Library, Sloane MS 3188, f. 104). The words stay English: each Latin "
+    "letter is drawn as the Enochian letter Dee gave for it, and digits, punctuation and symbols are left as they "
+    "are. The switch itself always stays in English, so it can be turned off again.\n"
+    "- **The letters.** Un A, Pa B, Veh C and K, Gal D, Graph E, Or F, Ged G, Na H, Gon I and J, Ur L, Tal M, "
+    "Drux N, Med O, Mals P, Ger Q, Don R, Fam S, Gisg T, Van U and V, Pal X, Ceph Z. Dee's 21 letters have no W "
+    "or Y: W is written as two Vans and Y as Gon with a point.\n"
+    "- **Direction.** Dee wrote Enochian from right to left; here the English words keep their own left-to-right "
+    "order.\n"
+    "- **What stays in ordinary letters.** The switch, the friend codes (they are copied and pasted back in), the "
+    "app's small icons and Streamlit's own menu. Copied text, downloads and *Say it out loud!* are still English.\n\n"
+    "The letter drawings are by Лорд Алекс (Lord Alex) on Wikimedia Commons, CC BY-SA 4.0; the app's font made from "
+    "them, Oracle Enochian, is shared under the same license (see THIRD-PARTY-NOTICES.md).")
+
+
 st.subheader('Step 1 · The real sky')
 st.markdown("""
 - **Where the planets are.** Positions come from NASA's Jet Propulsion Laboratory (the *DE440* planetary data, the same
@@ -243,4 +260,5 @@ st.caption("Lilly's text: Wellcome Collection copy of the 1647 edition, Internet
            "DEM GLO-90 (© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under "
            "COPERNICUS by the European Union and ESA). Time zones: IANA tz database. "
            "Background: Hubble's image of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, CC BY 4.0; "
-           "the colours of the app were taken from it.")
+           "the colours of the app were taken from it. Enochian letters: drawings by Лорд Алекс, Wikimedia Commons, "
+           "CC BY-SA 4.0 (the app's Oracle Enochian font, same license).")

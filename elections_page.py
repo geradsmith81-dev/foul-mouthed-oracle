@@ -181,7 +181,7 @@ for dte, rs in sorted(by_day.items()):
                           Note='All day: ' + (c[0][0] if c else '')))
 if not PHONE:                 # on a phone the day-by-day list at the top already covers this
     st.subheader('Day by day')
-    st.dataframe(pd.DataFrame(drows), hide_index=True, width='stretch')
+    device.table(pd.DataFrame(drows))       # Streamlit's table; a plain table while Enochian script is on
 
 c1, c2 = st.columns(2)
 c1.download_button('Download best windows (.ics calendar)', el.ics(W[:40], U['label'] + (f" ({user_profile.get()['name']})" if user_profile.get()['name'] else ''), place, step),

@@ -788,7 +788,12 @@ def speak_button(line):
     At 'Some' the clean wording is spoken, so the voice does not read out asterisks."""
     spoken = line if level() == 'Full' else filter_text(line, 'Clean')
     label = 'Say it out loud!'                     # the user's wording
-    html = f"""<!doctype html><html><body style="margin:0;background:transparent">
+    try:                                           # Enochian script on: the button in Dee's letters too
+        import enochian_script
+        style = enochian_script.iframe_css()
+    except Exception:
+        style = ''
+    html = f"""<!doctype html><html><head>{style}</head><body style="margin:0;background:transparent">
 <button id="b" style="width:100%;height:40px;border-radius:0.5rem;border:1px solid #4f6789;background:#111927;
  color:#f7f1ea;font:600 15px 'Source Sans Pro','Segoe UI',sans-serif;cursor:pointer">&#128266; {label}</button>
 <script>

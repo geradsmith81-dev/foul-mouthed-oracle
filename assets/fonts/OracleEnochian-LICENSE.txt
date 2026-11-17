@@ -1,0 +1,29 @@
+Oracle Enochian (assets/fonts/OracleEnochian.ttf)
+=================================================
+
+A font for The Foul-Mouthed Oracle's "Enochian script" switch: John Dee's 21 Enochian letters (Sloane MS 3188,
+f. 104, 6 May 1583) placed on the Latin letters A-Z and a-z.
+
+Glyph drawings
+--------------
+"Enochian - Un.svg", "Enochian - Pa.svg", ... "Enochian - Ceph.svg" (22 files, Wikimedia Commons,
+Category:Enochian letters), by Лорд Алекс (Lord Alex), own work, uploaded 28 March 2018.
+https://commons.wikimedia.org/wiki/Category:Enochian_letters
+Licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0).
+
+Changes made
+------------
+The outlines were converted to TrueType curves, scaled, set on a common baseline with side spacing, and mapped to
+the Latin letters (C and K: Veh; I and J: Gon; U and V: Van; W: two Vans side by side; Y: Gon with a point).
+Font assembled in 2026 by Gerad Smith.
+
+License of this font
+--------------------
+Because it is adapted from CC BY-SA 4.0 drawings, this font is licensed under the same license:
+Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+https://creativecommons.org/licenses/by-sa/4.0/
+
+You may copy, share and adapt it, also commercially, as long as you credit the glyph artist (Лорд Алекс, Wikimedia
+Commons) and this adaptation, link the license, say what you changed, and share your adaptations under the same
+license. The font is not covered by the MIT License of the app's program code (see LICENSE and
+THIRD-PARTY-NOTICES.md).

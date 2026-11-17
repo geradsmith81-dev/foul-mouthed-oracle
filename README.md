@@ -8,6 +8,8 @@ Not affiliated with or endorsed by the makers of these apps.
 
 **Whose reading?** (sidebar): William Lilly (1647), Ptolemy (*Tetrabiblos*, tr. F. E. Robbins, 1940) or John Dee
 (the angelic tables of the Sidereal Enochian Chart).
+**Enochian script** (top of the sidebar): spells the screen in John Dee's Enochian letters (his table of 6 May 1583);
+the words stay English underneath, and the switch itself always stays in English so it can be turned off again.
 **How rude?** (sidebar): Full, Some (masked), Clean (tame stand-ins) or Polite (the original Sidereal Oracle wording).
 **Who's talking?**: Friendly, Snarky or Doom-monger (personality, separate from the swearing, an idea from CARROT
 Weather). *Say it straight* swaps the punchline for a plain sentence. No wording appears twice on one page.
@@ -28,4 +30,6 @@ Lilly's own words, page references and scores are never changed.
 ## License
 
 The code is released under the [MIT License](LICENSE), copyright (c) 2026 Gerad Smith. The texts, data and images
-it uses keep their own terms: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
+it uses keep their own terms: see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). The Enochian font (`assets/fonts/OracleEnochian.ttf`) is
+made from drawings by Лорд Алекс (Wikimedia Commons) and is licensed
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), not MIT.

@@ -31,6 +31,13 @@ Astrosophy Birth Chart page, in `astrosophy/data/sources.csv`.
   under COPERNICUS by the European Union and ESA).
 - **Background image:** Hubble's image of the Lagoon Nebula (heic1808a). Credit: NASA, ESA, STScI. Creative Commons
   Attribution 4.0 International (CC BY 4.0).
+- **Enochian letters (font `assets/fonts/OracleEnochian.ttf`, used by the "Enochian script" switch).** The glyph
+  drawings are "Enochian - <letter>.svg" (22 files, Wikimedia Commons, Category:Enochian letters) by Лорд Алекс
+  (Lord Alex), 2018, licensed Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0),
+  https://creativecommons.org/licenses/by-sa/4.0/. They were converted into a font (scaled, set on a baseline,
+  mapped to A-Z, W made from two Vans) by Gerad Smith, 2026; the font is shared under the same CC BY-SA 4.0 license,
+  not the MIT License. Details: `assets/fonts/OracleEnochian-LICENSE.txt`. The letter forms follow John Dee's table
+  of 6 May 1583 (British Library, Sloane MS 3188, f. 104), which is in the public domain.
 - **Wiktionary**, Category:English idioms (CC BY-SA 4.0): headwords only were used as a check; no definitions were
   copied.
 

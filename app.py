@@ -71,6 +71,14 @@ st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=devi
 import voice
 voice.new_page()               # no phrase twice on one page: a fresh register for this run
 st.markdown(voice.CSS, unsafe_allow_html=True)
+# 'Enochian script' (sidebar): the screen spelled in John Dee's Enochian letters; the switch itself stays in English
+try:
+    import enochian_script
+    enochian_script.install_pyplot()       # the pictures (chart wheel, calendars) are re-lettered too
+    if enochian_script.on():
+        st.markdown(enochian_script.css(), unsafe_allow_html=True)
+except ModuleNotFoundError:                # enochian_script.py not uploaded yet: no switch
+    enochian_script = None
 # online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
 getattr(user_profile, 'device_sync', lambda: None)()
 # a friend card opened from a QR code (the link carries ?card=LILLY1:...): offer to add it
@@ -80,6 +88,8 @@ pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', 
                     st.Page(os.path.join(HERE, 'astrosophy_page.py'), title='Astrosophy Birth Chart', icon=':material/auto_awesome:'),
                     st.Page(os.path.join(HERE, 'friends_page.py'), title='Friends', icon=':material/group:'),
                     st.Page(os.path.join(HERE, 'about_page.py'), title='About', icon=':material/menu_book:')])
+if enochian_script is not None:
+    enochian_script.switch()   # first in the sidebar, always in English, so it is easy to find and switch back
 user_profile.sidebar_card()
 voice.switch()                 # 'How rude?': Full / Some / Clean / Polite
 device.switch()
@@ -120,7 +130,8 @@ except ModuleNotFoundError as e:
                  "folder, choosing **Replace**.")
     else:
         if not (e.name and os.path.exists(os.path.join(HERE, 'app.py')) and not os.path.exists(os.path.join(HERE, e.name + '.py'))
-                and e.name in ('glossary', 'qr_code', 'voice', 'school', 'dee_view', 'ptolemy_layer', 'ptolemy_forecast')):
+                and e.name in ('glossary', 'qr_code', 'voice', 'school', 'dee_view', 'ptolemy_layer', 'ptolemy_forecast',
+                               'enochian_script')):
             raise
         st.error(f"**A file of the app is missing:** `{e.name}.py`. Upload all the files from the newest GitHub zip again "
                  f"(including `{e.name}.py`), then click **Manage app** (bottom right) > the three dots > **Reboot app**.")
