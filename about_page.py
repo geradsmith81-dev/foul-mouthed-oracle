@@ -84,9 +84,9 @@ the page it comes from.
 """)
 
 # ---------------------------------------------------------------- the sky
-st.subheader("Whose reading: Lilly, Ptolemy or Dee")
+st.subheader("Two readings: Lilly or Ptolemy")
 st.markdown(
-    "The sidebar switch **Whose reading?** chooses whose rules read the chart: William Lilly, Ptolemy or John Dee. **William Lilly** "
+    "The sidebar switch **Whose reading?** chooses the author whose rules read the chart. **William Lilly** "
     "(*Christian Astrology*, 1647) is the default. **Ptolemy** reads it with the *Tetrabiblos* (2nd century), quoted "
     "from F. E. Robbins's translation (Loeb, 1940), with book, chapter and Loeb page, linked to the text on "
     "LacusCurtius.\n\n"
@@ -113,40 +113,6 @@ st.markdown(
     "One departure is the app's own choice: Ptolemy counts the signs from the equinoxes (I.22), that is, the "
     "tropical zodiac. Here, as in Lilly's reading, the signs are the real constellations. Every adaptation is "
     "listed under **Sources and certainty** at the foot of the Chart page (Full view).")
-
-st.subheader("A third reading: John Dee")
-st.markdown(
-    "**John Dee** in the switch **Whose reading?** reads the moment with the angelic tables of the *Sidereal "
-    "Enochian Chart*: Dee's Heptarchia as edited by J. H. Peterson (*John Dee's Five Books of Mystery*) and the tables "
-    "of G. James (*The Enochian Evocation of Dr John Dee*).\n"
-    "- **The day.** Each day of the week is governed by a Heptarchic King and Prince, counted from local sunrise (Dee "
-    "was never told when the day begins; local mean midnight is an option).\n"
-    "- **The hour.** The day is cut into six parts, each served by ministering angels; Dee wrote each angel as one "
-    "letter, and James's names are shown beside them.\n"
-    "- **The sky.** Each body takes the zodiac King (Liber Scientiae) of the IAU constellation it actually stands in. "
-    "Ophiuchus and the constellations off the zodiac have none.\n"
-    "- **The place.** The place falls in one of Dee's 91 Parts of the Earth, found by distance to an approximate "
-    "centre (an app gazetteer, so treat it as a guide).\n\n"
-    "Dee's system has no houses, dignity points or aspects, so the wheel shows none. The summary restates the "
-    "tables; the strengths and weaknesses are the Enochian app's own interpretive rules, not Dee's. The Auspicious "
-    "dates page and the four undertakings keep Lilly's election rules in every reading.")
-
-st.subheader("Enochian script")
-st.markdown(
-    "The switch **Enochian script**, at the top of the sidebar, spells the screen in John Dee's Enochian letters, "
-    "after his table of 6 May 1583 (British Library, Sloane MS 3188, f. 104). The words stay English: each Latin "
-    "letter is drawn as the Enochian letter Dee gave for it, and digits, punctuation and symbols are left as they "
-    "are. The switch itself always stays in English, so it can be turned off again.\n"
-    "- **The letters.** Un A, Pa B, Veh C and K, Gal D, Graph E, Or F, Ged G, Na H, Gon I and J, Ur L, Tal M, "
-    "Drux N, Med O, Mals P, Ger Q, Don R, Fam S, Gisg T, Van U and V, Pal X, Ceph Z. Dee's 21 letters have no W "
-    "or Y: W is written as two Vans and Y as Gon with a point.\n"
-    "- **Direction.** Dee wrote Enochian from right to left; here the English words keep their own left-to-right "
-    "order.\n"
-    "- **What stays in ordinary letters.** The switch, the friend codes (they are copied and pasted back in), the "
-    "app's small icons and Streamlit's own menu. Copied text, downloads and *Say it out loud!* are still English.\n\n"
-    "The letter drawings are by Лорд Алекс (Lord Alex) on Wikimedia Commons, CC BY-SA 4.0; the app's font made from "
-    "them, Oracle Enochian, is shared under the same license (see THIRD-PARTY-NOTICES.md).")
-
 
 st.subheader('Step 1 · The real sky')
 st.markdown("""
@@ -260,5 +226,4 @@ st.caption("Lilly's text: Wellcome Collection copy of the 1647 edition, Internet
            "DEM GLO-90 (© DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018, provided under "
            "COPERNICUS by the European Union and ESA). Time zones: IANA tz database. "
            "Background: Hubble's image of the Lagoon Nebula (heic1808a), credit NASA, ESA, STScI, CC BY 4.0; "
-           "the colours of the app were taken from it. Enochian letters: drawings by Лорд Алекс, Wikimedia Commons, "
-           "CC BY-SA 4.0 (the app's Oracle Enochian font, same license).")
+           "the colours of the app were taken from it.")

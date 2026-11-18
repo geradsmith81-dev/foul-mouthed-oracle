@@ -116,17 +116,4 @@ def table(df, phone_cols=None, **kw):
             df = df[[c for c in phone_cols if c in df.columns]]
         st.markdown(html_table(df), unsafe_allow_html=True)
         return
-    if _enochian():
-        # Enochian script on: Streamlit's interactive table paints its own letters and cannot take the Enochian
-        # font, so the whole table is written out as a plain table instead (enochian_script.py)
-        st.markdown(f"<div class='enochian-table'>{html_table(df)}</div>", unsafe_allow_html=True)
-        return
     st.dataframe(df, hide_index=True, width='stretch', **kw)
-
-
-def _enochian():
-    try:
-        import enochian_script
-        return enochian_script.on()
-    except Exception:
-        return False

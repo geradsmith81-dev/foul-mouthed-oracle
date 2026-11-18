@@ -76,10 +76,7 @@ with st.container(border=True):
                 f"(the person who begins), the lord of the {ll._ord(U['house'])} house (the matter), {U['natural']} and the Moon.")
     if getattr(sys.modules.get('school'), 'is_ptolemy', lambda: False)():
         st.info("You have chosen **Ptolemy's reading**. The Tetrabiblos has no rules for choosing a time to begin "
-                "something, so this page uses William Lilly's election rules in every reading.")
-    elif getattr(sys.modules.get('school'), 'is_dee', lambda: False)():
-        st.info("You have chosen **John Dee's reading**. Dee's angelic tables give no rules for choosing a time to "
-                "begin something, so this page uses William Lilly's election rules in every reading.")
+                "something, so this page uses William Lilly's election rules in both readings.")
     st.caption('Lilly wrote no separate book of elections. In his epistle he says that whoever has studied his book will be '
                '"able (ad libitum) to frame his owne Figure of Elections, let the quere be what it will". This page frames '
                'them from his rules: perfection of the significators (ch. XXI, pp.124-126), their strength (p.115), and his '
@@ -181,7 +178,7 @@ for dte, rs in sorted(by_day.items()):
                           Note='All day: ' + (c[0][0] if c else '')))
 if not PHONE:                 # on a phone the day-by-day list at the top already covers this
     st.subheader('Day by day')
-    device.table(pd.DataFrame(drows))       # Streamlit's table; a plain table while Enochian script is on
+    st.dataframe(pd.DataFrame(drows), hide_index=True, width='stretch')
 
 c1, c2 = st.columns(2)
 c1.download_button('Download best windows (.ics calendar)', el.ics(W[:40], U['label'] + (f" ({user_profile.get()['name']})" if user_profile.get()['name'] else ''), place, step),

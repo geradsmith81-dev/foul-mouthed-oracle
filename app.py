@@ -71,14 +71,6 @@ st.markdown(theme.css(os.path.join(HERE, 'assets', 'background.jpg'), phone=devi
 import voice
 voice.new_page()               # no phrase twice on one page: a fresh register for this run
 st.markdown(voice.CSS, unsafe_allow_html=True)
-# 'Enochian script' (sidebar): the screen spelled in John Dee's Enochian letters; the switch itself stays in English
-try:
-    import enochian_script
-    enochian_script.install_pyplot()       # the pictures (chart wheel, calendars) are re-lettered too
-    if enochian_script.on():
-        st.markdown(enochian_script.css(), unsafe_allow_html=True)
-except ModuleNotFoundError:                # enochian_script.py not uploaded yet: no switch
-    enochian_script = None
 # online: "Remember me on this device" - read the profile kept in this browser (once), save it when it changes
 getattr(user_profile, 'device_sync', lambda: None)()
 # a friend card opened from a QR code (the link carries ?card=LILLY1:...): offer to add it
@@ -88,8 +80,6 @@ pg = st.navigation([st.Page(os.path.join(HERE, 'chart_page.py'), title='Chart', 
                     st.Page(os.path.join(HERE, 'astrosophy_page.py'), title='Astrosophy Birth Chart', icon=':material/auto_awesome:'),
                     st.Page(os.path.join(HERE, 'friends_page.py'), title='Friends', icon=':material/group:'),
                     st.Page(os.path.join(HERE, 'about_page.py'), title='About', icon=':material/menu_book:')])
-if enochian_script is not None:
-    enochian_script.switch()   # first in the sidebar, always in English, so it is easy to find and switch back
 user_profile.sidebar_card()
 voice.switch()                 # 'How rude?': Full / Some / Clean / Polite
 device.switch()
@@ -98,8 +88,7 @@ getattr(device, 'view_switch', lambda: None)()
 try:
     import school
     school.switch()
-    _BOOK = ('Dee\'s angelic tables (Peterson\'s and James\'s editions), with page references' if school.is_dee()
-             else 'Ptolemy\'s Tetrabiblos, with chapter references' if school.is_ptolemy()
+    _BOOK = ('Ptolemy\'s Tetrabiblos, with chapter references' if school.is_ptolemy()
              else 'Lilly\'s 1647 book, with page references')
 except ModuleNotFoundError:          # school.py not uploaded yet: Lilly only
     _BOOK = 'Lilly\'s 1647 book, with page references'
@@ -114,14 +103,7 @@ try:
     pg.run()
 except ModuleNotFoundError as e:
     # a page needs one of the app's own files that is missing (not uploaded with the rest)
-    if (e.name or '').split('.')[0] == 'enochian':
-        # John Dee's reading needs the folder 'enochian' (with its own 'data' folder inside)
-        st.error("**A folder of the app is missing or incomplete:** `enochian` (needed for John Dee's reading; "
-                 f"missing: `{e.name}`). Upload the whole folder `enochian` from the newest GitHub zip, with the "
-                 "`data` folder inside it, then click **Manage app** (bottom right) > the three dots > **Reboot app**. "
-                 "On your computer: copy all the files and folders from the newest zip into the app folder, choosing "
-                 "**Replace**.")
-    elif (e.name or '').split('.')[0] == 'astrosophy':
+    if (e.name or '').split('.')[0] == 'astrosophy':
         # the Astrosophy Birth Chart page needs the folder 'astrosophy' (with its own 'data' folder inside)
         st.error("**A folder of the app is missing or incomplete:** `astrosophy` (needed for the Astrosophy Birth "
                  f"Chart page; missing: `{e.name}`). Upload the whole folder `astrosophy` from the newest GitHub zip, "
@@ -130,8 +112,8 @@ except ModuleNotFoundError as e:
                  "folder, choosing **Replace**.")
     else:
         if not (e.name and os.path.exists(os.path.join(HERE, 'app.py')) and not os.path.exists(os.path.join(HERE, e.name + '.py'))
-                and e.name in ('glossary', 'qr_code', 'voice', 'school', 'dee_view', 'ptolemy_layer', 'ptolemy_forecast',
-                               'enochian_script')):
+                and e.name in ('glossary', 'qr_code', 'voice', 'school', 'ptolemy_layer',
+                                           'ptolemy_forecast')):
             raise
         st.error(f"**A file of the app is missing:** `{e.name}.py`. Upload all the files from the newest GitHub zip again "
                  f"(including `{e.name}.py`), then click **Manage app** (bottom right) > the three dots > **Reboot app**.")
